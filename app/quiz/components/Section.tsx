@@ -71,6 +71,7 @@ const QuizTitleDiv = styled.div`
   margin-bottom: 20px;
 
   display: flex;
+  align-items: center;
 `;
 
 const QuizTitleNumber = styled.h1`
@@ -85,7 +86,7 @@ const QuizTitleContent = styled.h1`
   margin-left: 20px;
 
   font-size: 17pt;
-  font-weight: 300;
+  font-weight: 400;
 `;
 
 const OptionDiv = styled.div`
