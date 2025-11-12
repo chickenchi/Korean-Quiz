@@ -2,6 +2,8 @@
 
 import styled from "styled-components";
 import Image from "next/image";
+import { List, Pause, Play } from "@/public/svgs/HeaderSVG";
+import { useState } from "react";
 
 const QuizHeader = styled.div`
   width: 100%;
@@ -12,25 +14,33 @@ const QuizHeader = styled.div`
 `;
 
 const LogoDiv = styled.div`
-  width: 26%;
+  width: 25%;
 `;
 
 const Logo = styled.div`
   position: relative;
 
-  margin-left: 20px;
+  margin-left: 15px;
 `;
 
 const TimeDiv = styled.div`
-  width: 54%;
+  width: 55%;
 
   display: flex;
   justify-content: center;
+  align-items: center;
 `;
 
 const Time = styled.p`
   font-size: 15pt;
   font-family: "Cafe24OnePrettyNight";
+`;
+
+const TimeControl = styled.div`
+  display: flex;
+  align-items: center;
+
+  margin-left: 10px;
 `;
 
 const ListDiv = styled.div`
@@ -41,13 +51,23 @@ const ListDiv = styled.div`
 `;
 
 const ListButton = styled.button`
+  background-color: rgba(0, 0, 0, 0);
+
   width: 40px;
   height: 40px;
 
-  margin-right: 20px;
+  margin-right: 15px;
+
+  border: none;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export default function Header() {
+  const [played, setPlayed] = useState(true);
+
   return (
     <QuizHeader>
       <LogoDiv>
@@ -64,9 +84,15 @@ export default function Header() {
       </LogoDiv>
       <TimeDiv>
         <Time>00:00</Time>
+        <TimeControl>
+          {played && <Pause />}
+          {!played && <Play />}
+        </TimeControl>
       </TimeDiv>
       <ListDiv>
-        <ListButton></ListButton>
+        <ListButton>
+          <List />
+        </ListButton>
       </ListDiv>
     </QuizHeader>
   );
