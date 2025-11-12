@@ -84,9 +84,8 @@ export default function Header() {
       </LogoDiv>
       <TimeDiv>
         <Time>00:00</Time>
-        <TimeControl>
-          {played && <Pause />}
-          {!played && <Play />}
+        <TimeControl onClick={() => setPlayed(!played)}>
+          {played ? <Pause /> : <Play />}
         </TimeControl>
       </TimeDiv>
       <ListDiv>

@@ -1,7 +1,7 @@
 export const Play = () => {
   return (
     <svg width="14" height="14" viewBox="0 0 45 52" fill="none">
-      <path d="M45 26L0 51.9808L0 0.0192375L45 26Z" fill="#E04E92" />
+      <path d="M45 26L0 51.9808L0 0.0192375L45 26Z" fill="black" />
     </svg>
   );
 };
@@ -9,8 +9,8 @@ export const Play = () => {
 export const Pause = () => {
   return (
     <svg width="14" height="14" viewBox="0 0 123 158" fill="none">
-      <rect width="39" height="158" fill="#E04E92" />
-      <rect x="84" width="39" height="158" fill="#E04E92" />
+      <rect width="39" height="158" fill="black" />
+      <rect x="84" width="39" height="158" fill="black" />
     </svg>
   );
 };
