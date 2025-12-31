@@ -25,7 +25,7 @@ const QuizContent = styled.div`
 `;
 
 const ButtonSVG = styled.button`
-  background-color: rgba(0, 0, 0, 0);
+  background-color: transparent;
   border: none;
 
   display: flex;
@@ -33,7 +33,7 @@ const ButtonSVG = styled.button`
   align-items: center;
 `;
 
-const TagDiv = styled.div`
+const TagContainer = styled.div`
   position: absolute;
   left: 10px;
 
@@ -44,7 +44,7 @@ const TagDiv = styled.div`
 `;
 const TagButton = styled(ButtonSVG)``;
 
-const ArtContentDiv = styled.div`
+const ArtContentContainer = styled.div`
   position: absolute;
   right: 18px;
 
@@ -60,14 +60,14 @@ const WriteButton = styled(ButtonSVG)`
 `;
 const BookmarkButton = styled(ButtonSVG)``;
 
-const QuizDiv = styled.div`
+const QuizContainer = styled.div`
   height: 93%;
 
   display: flex;
   flex-direction: column;
 `;
 
-const QuizTitleDiv = styled.div`
+const QuizTitleContainer = styled.div`
   margin-bottom: 20px;
 
   display: flex;
@@ -89,13 +89,13 @@ const QuizTitleContent = styled.h1`
   font-weight: 400;
 `;
 
-const OptionDiv = styled.div`
+const OptionContainer = styled.div`
   margin-left: 30px;
 
   display: flex;
   flex-direction: column;
 `;
-const OptionContentDiv = styled.div`
+const OptionContentContainer = styled.div`
   display: flex;
 
   margin-bottom: 20px;
@@ -116,12 +116,12 @@ export default function Section() {
   return (
     <QuizSection>
       <QuizContent>
-        <TagDiv>
+        <TagContainer>
           <TagButton>
             <ToggleTag />
           </TagButton>
-        </TagDiv>
-        <ArtContentDiv>
+        </TagContainer>
+        <ArtContentContainer>
           <DrawButton>
             <Draw />
           </DrawButton>
@@ -131,44 +131,44 @@ export default function Section() {
           <BookmarkButton onClick={() => setIsBookmarked(!isBookmarked)}>
             {isBookmarked ? <Bookmark /> : <DisabledBookmark />}
           </BookmarkButton>
-        </ArtContentDiv>
+        </ArtContentContainer>
       </QuizContent>
 
-      <QuizDiv>
-        <QuizTitleDiv>
+      <QuizContainer>
+        <QuizTitleContainer>
           <QuizTitleNumber>01</QuizTitleNumber>
           <QuizTitleContent>
             어떤 일을 몹시 즐겨서 거기에 빠지다. 이를 의미하는 단어는?
           </QuizTitleContent>
-        </QuizTitleDiv>
+        </QuizTitleContainer>
 
         {quizType == "select" && (
-          <OptionDiv>
-            <OptionContentDiv>
+          <OptionContainer>
+            <OptionContentContainer>
               <OptionNumber>①</OptionNumber>
               <OptionDescription>
                 가는 말이 고와야 오는 말도 곱다.
               </OptionDescription>
-            </OptionContentDiv>
-            <OptionContentDiv>
+            </OptionContentContainer>
+            <OptionContentContainer>
               <OptionNumber>②</OptionNumber>
               <OptionDescription>발 없는 말이 천 리 간다.</OptionDescription>
-            </OptionContentDiv>
-            <OptionContentDiv>
+            </OptionContentContainer>
+            <OptionContentContainer>
               <OptionNumber>③</OptionNumber>
               <OptionDescription>제 버릇 개 줄까.</OptionDescription>
-            </OptionContentDiv>
-            <OptionContentDiv>
+            </OptionContentContainer>
+            <OptionContentContainer>
               <OptionNumber>④</OptionNumber>
               <OptionDescription>소 잃고 외양간 고친다.</OptionDescription>
-            </OptionContentDiv>
-            <OptionContentDiv>
+            </OptionContentContainer>
+            <OptionContentContainer>
               <OptionNumber>⑤</OptionNumber>
               <OptionDescription>꿈보다 해몽이 좋다.</OptionDescription>
-            </OptionContentDiv>
-          </OptionDiv>
+            </OptionContentContainer>
+          </OptionContainer>
         )}
-      </QuizDiv>
+      </QuizContainer>
     </QuizSection>
   );
 }

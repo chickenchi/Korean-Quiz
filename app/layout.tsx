@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import localFont from "next/font/local";
 
@@ -24,7 +23,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cafe24OnePrettyNight.className}>
+    <html
+      lang="ko"
+      className={cafe24OnePrettyNight.className}
+      suppressHydrationWarning
+    >
       <body>{children}</body>
     </html>
   );

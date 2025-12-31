@@ -1,3 +1,17 @@
+export const Close = () => {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M18.3 5.70996L5.69995 18.3099M5.69995 5.70996L18.3 18.3099L5.69995 5.70996Z"
+        stroke="black"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
 export const Bookmark = () => {
   return (
     <svg width="20" height="24" viewBox="0 0 16 20" fill="none">

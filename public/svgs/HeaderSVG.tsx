@@ -1,4 +1,4 @@
-export const Play = () => {
+export const PlayIcon = () => {
   return (
     <svg width="14" height="14" viewBox="0 0 45 52" fill="none">
       <path d="M45 26L0 51.9808L0 0.0192375L45 26Z" fill="black" />
@@ -6,7 +6,7 @@ export const Play = () => {
   );
 };
 
-export const Pause = () => {
+export const PauseIcon = () => {
   return (
     <svg width="14" height="14" viewBox="0 0 123 158" fill="none">
       <rect width="39" height="158" fill="black" />
@@ -15,7 +15,7 @@ export const Pause = () => {
   );
 };
 
-export const List = () => {
+export const ListIcon = () => {
   return (
     <svg width="25" height="20" viewBox="0 0 27 22" fill="none">
       <rect width="27" height="4" fill="black" />
@@ -25,7 +25,7 @@ export const List = () => {
   );
 };
 
-export const Logo = () => {
+export const LogoIcon = () => {
   return (
     <svg width="80" height="32" viewBox="0 0 160 64" fill="none">
       <path
