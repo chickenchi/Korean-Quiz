@@ -24,7 +24,7 @@ const QuizContent = styled.div`
   align-items: center;
 `;
 
-const ButtonSVG = styled.button`
+const ButtonImage = styled.button`
   background-color: transparent;
   border: none;
 
@@ -42,7 +42,34 @@ const TagContainer = styled.div`
   display: flex;
   align-items: center;
 `;
-const TagButton = styled(ButtonSVG)``;
+const TagButton = styled(ButtonImage)``;
+
+const TagElementContainer = styled.div`
+  margin-left: 5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const Tag = styled.div`
+  width: auto;
+  height: 28px;
+
+  margin-right: 5px;
+  padding: 0px 13px;
+
+  border: 2px solid black;
+  border-radius: 7px;
+
+  color: black;
+  font-size: 12pt;
+  font-weight: 500;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const ArtContentContainer = styled.div`
   position: absolute;
@@ -52,13 +79,13 @@ const ArtContentContainer = styled.div`
   align-items: center;
 `;
 
-const DrawButton = styled(ButtonSVG)`
+const DrawButton = styled(ButtonImage)`
   margin-right: 4px;
 `;
-const WriteButton = styled(ButtonSVG)`
+const WriteButton = styled(ButtonImage)`
   margin-right: 4px;
 `;
-const BookmarkButton = styled(ButtonSVG)``;
+const BookmarkButton = styled(ButtonImage)``;
 
 const QuizContainer = styled.div`
   height: 93%;
@@ -111,15 +138,22 @@ const OptionDescription = styled.div`
 
 export default function Section() {
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [tagActive, setTagActive] = useState(false);
   const [quizType] = useState("select");
 
   return (
     <QuizSection>
       <QuizContent>
         <TagContainer>
-          <TagButton>
+          <TagButton onClick={() => setTagActive(!tagActive)}>
             <ToggleTag />
           </TagButton>
+          {tagActive && (
+            <TagElementContainer>
+              <Tag>초급</Tag>
+              <Tag>어휘</Tag>
+            </TagElementContainer>
+          )}
         </TagContainer>
         <ArtContentContainer>
           <DrawButton>

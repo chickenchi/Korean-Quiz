@@ -71,7 +71,7 @@ const ListButton = styled.button`
 export default function Header() {
   const [time, setTime] = useAtom(timeState);
   const [started, setStarted] = useAtom(startedState);
-  const [listOpen, setListOpen] = useAtom(listOpenState);
+  const [, setListOpen] = useAtom(listOpenState);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
