@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
+import ConfirmModal from "./components/ConfirmModal";
+import InfoModal from "./components/InfoModal";
 
 const cafe24OnePrettyNight = localFont({
   src: [
@@ -28,7 +30,11 @@ export default function RootLayout({
       className={cafe24OnePrettyNight.className}
       suppressHydrationWarning
     >
-      <body>{children}</body>
+      <body>
+        <ConfirmModal />
+        <InfoModal />
+        {children}
+      </body>
     </html>
   );
 }

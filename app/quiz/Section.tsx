@@ -4,12 +4,12 @@ import { Bookmark, DisabledBookmark } from "@/public/svgs/ListSVG";
 import { Draw, ToggleTag, Write } from "@/public/svgs/QuizSVG";
 import { useState } from "react";
 import styled from "styled-components";
+import { answerState } from "../atom/quizAtom";
+import { useAtom } from "jotai";
 
 const QuizSection = styled.div`
   width: 100%;
   height: 80%;
-
-  padding-top: 10px;
 `;
 
 const QuizContent = styled.div`
@@ -130,10 +130,12 @@ const OptionContainer = styled.div`
   display: flex;
   flex-direction: column;
 `;
-const OptionContentContainer = styled.div`
+const OptionContentContainer = styled.div<{ isActive: boolean }>`
   display: flex;
 
   margin-bottom: 20px;
+
+  color: ${(props) => (props.isActive ? "#d52e7c" : "black")};
 `;
 const OptionNumber = styled.div`
   margin-right: 5px;
@@ -148,6 +150,7 @@ export default function Section() {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [tagActive, setTagActive] = useState(false);
   const [quizType] = useState("select");
+  const [quizAnswer, setQuizAnswer] = useAtom(answerState);
 
   return (
     <QuizSection>
@@ -187,25 +190,40 @@ export default function Section() {
 
         {quizType == "select" && (
           <OptionContainer>
-            <OptionContentContainer>
+            <OptionContentContainer
+              onClick={() => setQuizAnswer("1")}
+              isActive={quizAnswer === "1"}
+            >
               <OptionNumber>①</OptionNumber>
               <OptionDescription>
                 가는 말이 고와야 오는 말도 곱다.
               </OptionDescription>
             </OptionContentContainer>
-            <OptionContentContainer>
+            <OptionContentContainer
+              onClick={() => setQuizAnswer("2")}
+              isActive={quizAnswer === "2"}
+            >
               <OptionNumber>②</OptionNumber>
               <OptionDescription>발 없는 말이 천 리 간다.</OptionDescription>
             </OptionContentContainer>
-            <OptionContentContainer>
+            <OptionContentContainer
+              onClick={() => setQuizAnswer("3")}
+              isActive={quizAnswer === "3"}
+            >
               <OptionNumber>③</OptionNumber>
               <OptionDescription>제 버릇 개 줄까.</OptionDescription>
             </OptionContentContainer>
-            <OptionContentContainer>
+            <OptionContentContainer
+              onClick={() => setQuizAnswer("4")}
+              isActive={quizAnswer === "4"}
+            >
               <OptionNumber>④</OptionNumber>
               <OptionDescription>소 잃고 외양간 고친다.</OptionDescription>
             </OptionContentContainer>
-            <OptionContentContainer>
+            <OptionContentContainer
+              onClick={() => setQuizAnswer("5")}
+              isActive={quizAnswer === "5"}
+            >
               <OptionNumber>⑤</OptionNumber>
               <OptionDescription>꿈보다 해몽이 좋다.</OptionDescription>
             </OptionContentContainer>

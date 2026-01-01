@@ -1,16 +1,110 @@
 "use client";
 
 import styled from "styled-components";
+import {
+  confirmConfigState,
+  hintCountState,
+  hintState,
+  infoConfigState,
+} from "../atom/quizAtom";
+import { useAtom } from "jotai";
 
 const QuizFooter = styled.div`
   width: 100%;
   height: 10%;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
 `;
 
+const Button = styled.button`
+  background-color: transparent;
+
+  width: 30%;
+  height: 40px;
+
+  margin-right: 10px;
+  margin-bottom: 15px;
+
+  border: 1px solid #000;
+  border-radius: 5px;
+
+  font-size: 16px;
+`;
+
+const AnswerButton = styled(Button)``;
+
 export default function Footer() {
+  const [, setAlertConfig] = useAtom(confirmConfigState);
+  const [infoConfig, setInfoConfig] = useAtom(infoConfigState);
+  const [hintCount, setHintCount] = useAtom(hintCountState);
+  const [hint] = useAtom(hintState);
+
+  const handleShowHint = () => {
+    setInfoConfig({
+      content: hint,
+      onClose: () => {
+        setInfoConfig(null);
+      },
+    });
+  };
+
+  const handleAnswerCheck = () => {
+    setAlertConfig({
+      content: "정말로 정답을 확인하시겠습니까?",
+      onConfirm: () => {
+        setAlertConfig(null);
+      },
+      onCancel: () => {
+        setAlertConfig(null);
+      },
+    });
+  };
+
+  const handlePassCheck = () => {
+    setAlertConfig({
+      content: `정말로 넘기시겠습니까?
+기존에 작업한 내용은 저장되지 않습니다!`,
+      onConfirm: () => {
+        console.log("넘김");
+        setAlertConfig(null);
+      },
+      onCancel: () => {
+        setAlertConfig(null);
+      },
+    });
+  };
+
+  const handleHintCheck = () => {
+    if (hintCount <= 0) {
+      setInfoConfig({
+        content: "사용 가능한 힌트가 없습니다.",
+        onClose: () => {
+          setInfoConfig(null);
+        },
+      });
+    } else {
+      setAlertConfig({
+        content: `정말로 힌트를 사용하시겠습니까?
+현재 볼 수 있는 힌트는 ${hintCount}개입니다.`,
+        onConfirm: () => {
+          setHintCount(hintCount - 1);
+          handleShowHint();
+          setAlertConfig(null);
+        },
+        onCancel: () => {
+          setAlertConfig(null);
+        },
+      });
+    }
+  };
+
   return (
     <QuizFooter>
-      <></>
+      <Button onClick={handleHintCheck}>힌트</Button>
+      <AnswerButton onClick={handleAnswerCheck}>정답 확인</AnswerButton>
+      <Button onClick={handlePassCheck}>넘기기</Button>
     </QuizFooter>
   );
 }
