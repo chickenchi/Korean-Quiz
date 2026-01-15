@@ -2,6 +2,7 @@
 
 import styled from "styled-components";
 import {
+  answerState,
   confirmConfigState,
   hintCountState,
   hintState,
@@ -45,6 +46,7 @@ export default function Footer() {
   const [viewedQuiz, setViewedQuiz] = useAtom(viewedQuizState);
   const [, setQuestion] = useAtom(questionState);
   const [hint] = useAtom(hintState);
+  const [answer] = useAtom(answerState);
 
   const handleShowHint = () => {
     setInfoConfig({
@@ -56,15 +58,24 @@ export default function Footer() {
   };
 
   const handleAnswerCheck = () => {
-    setAlertConfig({
-      content: "정말로 정답을 확인하시겠습니까?",
-      onConfirm: () => {
-        setAlertConfig(null);
-      },
-      onCancel: () => {
-        setAlertConfig(null);
-      },
-    });
+    if (!answer) {
+      setInfoConfig({
+        content: "정답을 입력하거나 고르세요.",
+        onClose: () => {
+          setInfoConfig(null);
+        },
+      });
+    } else {
+      setAlertConfig({
+        content: "정말로 정답을 확인하시겠습니까?",
+        onConfirm: () => {
+          setAlertConfig(null);
+        },
+        onCancel: () => {
+          setAlertConfig(null);
+        },
+      });
+    }
   };
 
   const handlePassCheck = () => {
