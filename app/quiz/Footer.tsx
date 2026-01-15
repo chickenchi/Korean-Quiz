@@ -57,6 +57,8 @@ export default function Footer() {
         },
       });
     } else {
+      setHintCount(hintCount - 1);
+
       setInfoConfig({
         content: hint,
         onClose: () => {
@@ -115,7 +117,6 @@ export default function Footer() {
         content: `정말로 힌트를 사용하시겠습니까?
 현재 볼 수 있는 힌트는 ${hintCount}개입니다.`,
         onConfirm: () => {
-          setHintCount(hintCount - 1);
           handleShowHint();
           setAlertConfig(null);
         },
