@@ -21,9 +21,9 @@ export default function Quiz() {
   return (
     <QuizBackground>
       <Header />
+      <Section />
       {started && (
         <>
-          <Section />
           <Footer />
         </>
       )}

@@ -99,11 +99,8 @@ export default function List() {
         >
           <ListContainer
             initial={{ x: "100%" }}
-            /* 3. 나타날 때 상태 (제자리) */
             animate={{ x: 0 }}
-            /* 4. 사라질 때 상태 (다시 오른쪽 밖으로) */
             exit={{ x: "100%" }}
-            /* 5. 애니메이션 세부 설정 (속도, 탄성 등) */
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
           >
             <ListCloseButton onClick={() => listClosing()}>

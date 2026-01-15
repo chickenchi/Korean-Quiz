@@ -15,6 +15,7 @@ import {
   answerState,
   hintState,
   questionState,
+  startedState,
   timeState,
   viewedQuizState,
 } from "../atom/quizAtom";
@@ -23,9 +24,11 @@ import { selectQuestion } from "./tools/select_question";
 import { formatNumber } from "./tools/format_number";
 import { parseTextStyle } from "./tools/parse_text_style";
 
-const QuizSection = styled.div`
+const QuizSection = styled.div<{ $started: boolean }>`
   width: 100%;
   height: 80%;
+
+  display: ${({ $started }) => ($started ? "block" : "none")};
 `;
 
 const QuizContent = styled.div`
@@ -317,12 +320,14 @@ export default function Section() {
   const [viewedQuiz, setViewedQuiz] = useAtom(viewedQuizState);
   const [, setTime] = useAtom(timeState);
   const [, setHint] = useAtom(hintState);
+  const [started] = useAtom(startedState);
 
   useEffect(() => {
     setQuestion(selectQuestion(viewedQuiz, setViewedQuiz));
   }, []);
 
   useEffect(() => {
+    console.log("?");
     setQuizAnswer("");
     setTime(0);
     if (question) setHint(question.hint);
@@ -331,7 +336,7 @@ export default function Section() {
   if (!question) return null;
 
   return (
-    <QuizSection>
+    <QuizSection $started={started}>
       <QuizContent>
         <TagContainer>
           <TagButton onClick={() => setTagActive(!tagActive)}>
