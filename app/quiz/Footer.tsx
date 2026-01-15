@@ -40,10 +40,10 @@ const AnswerButton = styled(Button)``;
 
 export default function Footer() {
   const [, setAlertConfig] = useAtom(confirmConfigState);
-  const [infoConfig, setInfoConfig] = useAtom(infoConfigState);
+  const [, setInfoConfig] = useAtom(infoConfigState);
   const [hintCount, setHintCount] = useAtom(hintCountState);
   const [viewedQuiz, setViewedQuiz] = useAtom(viewedQuizState);
-  const [question, setQuestion] = useAtom(questionState);
+  const [, setQuestion] = useAtom(questionState);
   const [hint] = useAtom(hintState);
 
   const handleShowHint = () => {

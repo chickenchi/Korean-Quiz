@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import {
   answerState,
+  hintState,
   questionState,
   timeState,
   viewedQuizState,
@@ -128,6 +129,8 @@ const QuizContainer = styled.div`
 
 /* Title */
 const QuizTitleContainer = styled.div`
+  width: 90%;
+
   margin-bottom: 20px;
 
   display: flex;
@@ -221,7 +224,7 @@ const Guide = styled.p`
 
 const Input = styled.input`
   height: 50px;
-  width: 80%;
+  width: 70%;
 
   border-color: #888888;
   border-radius: 10px;
@@ -237,17 +240,83 @@ const Input = styled.input`
   outline: none;
 `;
 
-export default function Section() {
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [tagActive, setTagActive] = useState(false);
+export const MultipleChoice = ({
+  options,
+}: {
+  options: string[] | undefined;
+}) => {
+  if (options === undefined) return null;
+
   const [quizAnswer, setQuizAnswer] = useAtom(answerState);
-  const [question, setQuestion] = useAtom(questionState);
-  const [viewedQuiz, setViewedQuiz] = useAtom(viewedQuizState);
-  const [, setTime] = useAtom(timeState);
+
+  return (
+    <OptionContainer>
+      {options.map((option, index) => {
+        const answerNumber = String(index + 1);
+
+        return (
+          <OptionContentContainer
+            key={index}
+            onClick={() => setQuizAnswer(answerNumber)}
+            $isActive={quizAnswer === answerNumber}
+          >
+            <OptionNumber>{String.fromCharCode(9312 + index)}</OptionNumber>
+            <OptionDescription>{option}</OptionDescription>
+          </OptionContentContainer>
+        );
+      })}
+    </OptionContainer>
+  );
+};
+
+export const TextInput = ({ guide }: { guide: string | undefined }) => {
+  if (!guide) return;
+
+  const [quizAnswer, setQuizAnswer] = useAtom(answerState);
 
   const handleQuizAnswerChange = (e: any) => {
     setQuizAnswer(e.target.value);
   };
+
+  return (
+    <InputAnswer>
+      <Guide>{guide}</Guide>
+      <Input
+        value={quizAnswer}
+        onChange={handleQuizAnswerChange}
+        type="text"
+        placeholder="정답을 입력해 주세요"
+      />
+    </InputAnswer>
+  );
+};
+
+export const OX = () => {
+  const [quizAnswer, setQuizAnswer] = useAtom(answerState);
+
+  return (
+    <SelectAnswer>
+      <CorrectButton onClick={() => setQuizAnswer("O")}>
+        <Correct lineColor={quizAnswer == "O" ? "#E04E92" : "#FFC7E2"} />
+      </CorrectButton>
+      <DividerContainer>
+        <Divider lineColor={quizAnswer ? "#E04E92" : "#FFC7E2"} />
+      </DividerContainer>
+      <WrongButton onClick={() => setQuizAnswer("X")}>
+        <Wrong lineColor={quizAnswer == "X" ? "#E04E92" : "#FFC7E2"} />
+      </WrongButton>
+    </SelectAnswer>
+  );
+};
+
+export default function Section() {
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [tagActive, setTagActive] = useState(false);
+  const [, setQuizAnswer] = useAtom(answerState);
+  const [question, setQuestion] = useAtom(questionState);
+  const [viewedQuiz, setViewedQuiz] = useAtom(viewedQuizState);
+  const [, setTime] = useAtom(timeState);
+  const [, setHint] = useAtom(hintState);
 
   useEffect(() => {
     setQuestion(selectQuestion(viewedQuiz, setViewedQuiz));
@@ -256,6 +325,7 @@ export default function Section() {
   useEffect(() => {
     setQuizAnswer("");
     setTime(0);
+    if (question) setHint(question.hint);
   }, [question]);
 
   if (!question) return null;
@@ -307,46 +377,13 @@ export default function Section() {
         </QuizTitleContainer>
 
         {question.type == "multiple-choice" ? (
-          <OptionContainer>
-            {question.options?.map((option, index) => {
-              const answerNumber = String(index + 1);
-
-              return (
-                <OptionContentContainer
-                  key={index}
-                  onClick={() => setQuizAnswer(answerNumber)}
-                  $isActive={quizAnswer === answerNumber}
-                >
-                  <OptionNumber>
-                    {String.fromCharCode(9312 + index)}
-                  </OptionNumber>
-                  <OptionDescription>{option}</OptionDescription>
-                </OptionContentContainer>
-              );
-            })}
-          </OptionContainer>
+          <MultipleChoice options={question.options} />
         ) : question.type == "text-input" ? (
-          <InputAnswer>
-            <Guide>{question.guide}</Guide>
-            <Input
-              value={quizAnswer}
-              onChange={handleQuizAnswerChange}
-              type="text"
-              placeholder="정답을 입력해 주세요"
-            />
-          </InputAnswer>
+          <TextInput guide={question.guide} />
+        ) : question.type == "ox" ? (
+          <OX />
         ) : (
-          <SelectAnswer>
-            <CorrectButton onClick={() => setQuizAnswer("O")}>
-              <Correct lineColor={quizAnswer == "O" ? "#E04E92" : "#FFC7E2"} />
-            </CorrectButton>
-            <DividerContainer>
-              <Divider lineColor={quizAnswer ? "#E04E92" : "#FFC7E2"} />
-            </DividerContainer>
-            <WrongButton onClick={() => setQuizAnswer("X")}>
-              <Wrong lineColor={quizAnswer == "X" ? "#E04E92" : "#FFC7E2"} />
-            </WrongButton>
-          </SelectAnswer>
+          <>뭔가 잘못된 것 같은데요?</>
         )}
       </QuizContainer>
     </QuizSection>
