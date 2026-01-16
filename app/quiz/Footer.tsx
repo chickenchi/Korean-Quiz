@@ -8,17 +8,19 @@ import {
   hintState,
   infoConfigState,
   questionState,
+  showResultState,
+  startedState,
   viewedQuizState,
 } from "../atom/quizAtom";
 import { useAtom } from "jotai";
 import { selectQuestion } from "./tools/select_question";
 import { Clue } from "@/public/svgs/QuizSVG";
 
-const QuizFooter = styled.div`
+const QuizFooter = styled.div<{ $started: boolean }>`
   width: 100%;
   height: 10%;
 
-  display: flex;
+  display: ${({ $started }) => ($started ? "flex" : "none")};
   justify-content: center;
   align-items: flex-end;
 `;
@@ -80,6 +82,8 @@ export default function Footer() {
   const [, setQuestion] = useAtom(questionState);
   const [hint] = useAtom(hintState);
   const [answer] = useAtom(answerState);
+  const [started] = useAtom(startedState);
+  const [, setShowResult] = useAtom(showResultState);
 
   const handleShowHint = () => {
     if (!hint) {
@@ -114,6 +118,7 @@ export default function Footer() {
         content: "정말로 정답을 확인하시겠습니까?",
         onConfirm: () => {
           setAlertConfig(null);
+          setShowResult(true);
         },
         onCancel: () => {
           setAlertConfig(null);
@@ -161,7 +166,7 @@ export default function Footer() {
   };
 
   return (
-    <QuizFooter>
+    <QuizFooter $started={started}>
       <HintContainer>
         <HintContent>
           <Clue />

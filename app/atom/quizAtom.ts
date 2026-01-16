@@ -3,6 +3,7 @@ import { questionData } from '../data/quiz_data';
 
 export const timeState = atom<number>(0);
 export const startedState = atom<boolean>(true);
+export const showResultState = atom<boolean>(false);
 
 export const questionState = atom<questionData | null>(null);
 export const viewedQuizState = atom<Set<number>>(new Set<number>());
