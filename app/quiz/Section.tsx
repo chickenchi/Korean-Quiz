@@ -251,13 +251,12 @@ const InputAnswer = styled.div`
   flex-direction: column;
 
   width: 100%;
-
-  margin-left: 30px;
-  margin-top: 0;
 `;
 
 const Guide = styled.p`
   width: 80%;
+
+  margin-left: 30px;
 
   text-align: center;
   font-size: 17px;
@@ -271,6 +270,7 @@ const Input = styled.input`
   border-radius: 10px;
   border-width: 1px;
 
+  margin-left: 30px;
   padding-left: 10px;
 
   color: #888888;
