@@ -89,6 +89,22 @@ const AnswerButton = styled(Button)`
   transform: translate(50%, 0%);
 `;
 
+const NextButton = styled(Button)`
+  background-color: #e04e92;
+
+  left: 10px;
+
+  width: 45%;
+
+  color: white;
+`;
+
+const ExplanationButton = styled(Button)`
+  right: 10px;
+
+  width: 45%;
+`;
+
 export default function Footer() {
   const [hintCount, setHintCount] = useAtom(hintCountState);
   const [showResult, setShowResult] = useAtom(showResultState);
@@ -101,7 +117,7 @@ export default function Footer() {
   const [, setInfoConfig] = useAtom(infoConfigState);
   const [, setQuestion] = useAtom(questionState);
 
-  const handleShowHint = () => {
+  const showHint = () => {
     if (!hint) {
       setInfoConfig({
         content: "힌트가 없습니다.",
@@ -121,7 +137,7 @@ export default function Footer() {
     }
   };
 
-  const handleAnswerCheck = () => {
+  const answerCheck = () => {
     if (!answer) {
       setInfoConfig({
         content: "정답을 입력하거나 고르세요.",
@@ -144,7 +160,7 @@ export default function Footer() {
     }
   };
 
-  const handlePassCheck = () => {
+  const passCheck = () => {
     setAlertConfig({
       type: "danger",
       content: `정말로 넘기시겠습니까?
@@ -159,7 +175,7 @@ export default function Footer() {
     });
   };
 
-  const handleHintCheck = () => {
+  const hintCheck = () => {
     if (hintCount <= 0) {
       setInfoConfig({
         content: "사용 가능한 힌트가 없습니다.",
@@ -172,7 +188,7 @@ export default function Footer() {
         content: `정말로 힌트를 사용하시겠습니까?
 현재 볼 수 있는 힌트는 ${hintCount}개입니다.`,
         onConfirm: () => {
-          handleShowHint();
+          showHint();
           setAlertConfig(null);
         },
         onCancel: () => {
@@ -182,11 +198,13 @@ export default function Footer() {
     }
   };
 
-  const handleNextQuiz = () => {
+  const nextQuiz = () => {
     setShowResult(false);
     setStarted(true);
     setQuestion(selectQuestion());
   };
+
+  const explanation = () => {};
 
   return (
     <QuizFooter $started={started} $showResult={showResult}>
@@ -197,14 +215,15 @@ export default function Footer() {
               <Clue />
               <HintCount>{hintCount}</HintCount>
             </HintContent>
-            <HintButton onClick={handleHintCheck}>힌트</HintButton>
+            <HintButton onClick={hintCheck}>힌트</HintButton>
           </HintContainer>
-          <AnswerButton onClick={handleAnswerCheck}>정답 확인</AnswerButton>
-          <SkipButton onClick={handlePassCheck}>넘기기</SkipButton>
+          <AnswerButton onClick={answerCheck}>정답 확인</AnswerButton>
+          <SkipButton onClick={passCheck}>넘기기</SkipButton>
         </>
       ) : (
         <>
-          <AnswerButton onClick={handleNextQuiz}>다음 문제</AnswerButton>
+          <NextButton onClick={nextQuiz}>다음 문제</NextButton>
+          <ExplanationButton onClick={explanation}>해설</ExplanationButton>
         </>
       )}
     </QuizFooter>
