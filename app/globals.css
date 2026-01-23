@@ -13,5 +13,5 @@ body {
 
 @font-face {
   font-family: 'Cafe24OnePrettyNight';
-  src: url('/fonts/Cafe24OnePrettyNight/Cafe24OnePrettyNight.ttf') format('ttf');
+  src: url('./fonts/Cafe24Oneprettynight/Cafe24Oneprettynight.ttf') format('ttf');
 }

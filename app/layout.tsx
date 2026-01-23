@@ -2,7 +2,17 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ConfirmModal from "./components/ConfirmModal";
 import InfoModal from "./components/InfoModal";
-import { cafe24OnePrettyNight } from "./cafe24OnePrettynight";
+import localFont from "next/font/local";
+
+const cafe24OnePrettyNight = localFont({
+  src: [
+    {
+      path: "./fonts/Cafe24Oneprettynight/Cafe24Oneprettynight.ttf",
+      weight: "400",
+      style: "normal",
+    },
+  ],
+});
 
 export const metadata: Metadata = {
   title: "한국어 퀴즈",
