@@ -7,6 +7,10 @@ body {
   padding: 0;
 }
 
+* {
+  font-family: 'Cafe24OnePrettyNight';
+}
+
 @font-face {
   font-family: 'Cafe24OnePrettyNight';
   src: url('/fonts/Cafe24OnePrettyNight/Cafe24OnePrettyNight.ttf') format('ttf');

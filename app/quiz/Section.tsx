@@ -297,7 +297,6 @@ const Input = styled.input`
 
   color: #888888;
 
-  font-family: "Cafe24Oneprettynight";
   font-size: 16px;
 
   outline: none;

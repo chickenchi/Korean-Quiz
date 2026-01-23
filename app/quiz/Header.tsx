@@ -41,7 +41,6 @@ const TimeContainer = styled.div`
 
 const Time = styled.p`
   font-size: 15pt;
-  font-family: "Cafe24OnePrettyNight";
 `;
 
 const TimeControl = styled.div`
