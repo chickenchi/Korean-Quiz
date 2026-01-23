@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ConfirmModal from "./components/ConfirmModal";
 import InfoModal from "./components/InfoModal";
-import { cafe24OnePrettyNight } from "./fonts/cafe24OnePrettynight";
+import { cafe24OnePrettyNight } from "./cafe24OnePrettynight";
 
 export const metadata: Metadata = {
   title: "한국어 퀴즈",
