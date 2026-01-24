@@ -10,13 +10,16 @@
   },
   "dependencies": {
     "@radix-ui/react-visually-hidden": "^1.2.4",
+    "@tailwindcss/postcss": "^4.1.18",
     "framer-motion": "^12.23.26",
     "jotai": "^2.16.1",
     "next": "^16.1.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-range": "^1.10.0",
+    "react-textarea-autosize": "^8.5.9",
     "styled-components": "^6.1.19",
+    "tailwindcss": "^4.1.18",
     "vaul": "^1.1.2"
   },
   "devDependencies": {
