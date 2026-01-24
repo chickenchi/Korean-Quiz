@@ -1,8 +1,33 @@
 "use client";
-import { useAtom } from "jotai";
-import { useEffect, useState, useRef, ChangeEvent } from "react";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+  Transition,
+} from "@headlessui/react";
+import { ChangeEvent, Fragment, useEffect, useRef } from "react";
+
+import Image from "next/image";
 
 import TextareaAutosize from "react-textarea-autosize";
+import {
+  articleContentAtom,
+  choiceDescriptionAtom,
+  choiceExplanationAtom,
+  correctAnswerAtom,
+  correctAnswerOXAtom,
+  explanationAtom,
+  focusTargetAtom,
+  hintAtom,
+  previewAtom,
+  questionTitleAtom,
+  selectedViewAtom,
+  typeAtom,
+  typeOptions,
+} from "../atom/makeQuizAtom";
+
+import { useAtom } from "jotai";
 
 const Header = () => {
   return (
@@ -13,10 +38,15 @@ const Header = () => {
 };
 
 const Section = () => {
-  const textareaStyle = `w-[100%] h-[auto] mt-2 p-2
+  const textareaStyle = `w-full mt-2 p-2
           border border-gray-300 rounded-md
           px-4 py-3
           outline-none resize-none`;
+
+  const choiceStyle = `w-[100%] h-12 mt-2 p-2
+        border border-gray-300 rounded-md
+        px-4 py-3
+        outline-none`;
 
   const subtitleStyle = `text-2xl`;
 
@@ -24,23 +54,166 @@ const Section = () => {
         border border-[#727272]
         text-[#727272] outline-none`;
 
-  const [selectedView, setSelectedView] = useState<
-    "none" | "image" | "article"
-  >("none");
+  const blankedWarningStyle = `ring ring-[#D52E7C]
+  placeholder:text-[#D52E7C] text-[#D52E7C]`;
 
-  const [preview, setPreview] = useState<string | null>(null);
+  // Question Title
+  const [questionTitle, setQuestionTitle] = useAtom(questionTitleAtom);
+  const questionTitleRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleQuestionTitleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setQuestionTitle(e.target.value);
+  };
+
+  // Type
+  const [type, setType] = useAtom(typeAtom);
+  const typeRef = useRef<HTMLDivElement>(null);
+
+  // Choice Description
+  const [choiceDescriptions, setChoiceDescriptions] = useAtom(
+    choiceDescriptionAtom,
+  );
+  const choiceDescriptionsRef = useRef<Map<number, HTMLTextAreaElement | null>>(
+    new Map<number, HTMLTextAreaElement | null>(),
+  );
+
+  const handleChoiceDescriptionChange = (
+    index: number,
+    e: ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const newChoiceDescriptions = new Map(choiceDescriptions);
+    newChoiceDescriptions.set(index, [e.target.value, false]);
+    setChoiceDescriptions(newChoiceDescriptions);
+  };
+
+  // Correct Answer
+  const [correctAnswer, setCorrectAnswer] = useAtom(correctAnswerAtom);
+  const correctAnswerRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleCorrectAnswerChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setCorrectAnswer(e.target.value);
+  };
+
+  const [correctAnswerOX, setCorrectAnswerOX] = useAtom(correctAnswerOXAtom);
+  const correctAnswerOXRef = useRef<HTMLDivElement>(null);
+
+  // View
+  const [selectedView, setSelectedView] = useAtom(selectedViewAtom);
+
+  // Image
+  const [preview, setPreview] = useAtom(previewAtom);
+  const imageRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; // 파일이 없을 수도 있으니 옵셔널 체이닝
+    const file = e.target.files?.[0];
 
     if (file) {
-      // 메모리 효율이 좋은 방식
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
-
-      // (선택사항) 메모리 누수 방지 로직이 필요하다면 여기에 추가
     }
   };
+
+  // Article
+  const [article, setArticle] = useAtom(articleContentAtom);
+  const articleRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleArticleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setArticle(e.target.value);
+  };
+
+  // Hint
+  const [hint, setHint] = useAtom(hintAtom);
+
+  const handleHintChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setHint(e.target.value);
+  };
+
+  // Explanation
+  const [explanation, setExplanation] = useAtom(explanationAtom);
+  const explanationRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleExplanationChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setExplanation(e.target.value);
+  };
+
+  // Choice Explanation
+  const [choiceExplanations, setChoiceExplanations] = useAtom(
+    choiceExplanationAtom,
+  );
+  const textRefs = useRef<Map<number, HTMLTextAreaElement | null>>(
+    new Map<number, HTMLTextAreaElement | null>(),
+  );
+
+  const handleChoiceExplanationChange = (
+    index: number,
+    e: ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const newChoiceExplanations = new Map(choiceExplanations);
+    newChoiceExplanations.set(index, e.target.value);
+    setChoiceExplanations(newChoiceExplanations);
+  };
+
+  const [focusTarget] = useAtom(focusTargetAtom);
+
+  useEffect(() => {
+    switch (focusTarget?.split("-")[0]) {
+      case "questionTitle":
+        questionTitleRef.current?.focus();
+        break;
+      case "type":
+        typeRef.current?.scrollIntoView({ behavior: "smooth" });
+        break;
+      case "cDescription":
+        if (choiceDescriptionsRef.current.size > 0) {
+          const firstEmpty = [...choiceDescriptions].find(
+            ([, [desc]]) => desc.trim() === "",
+          );
+
+          if (firstEmpty) {
+            choiceDescriptionsRef.current.get(firstEmpty[0])?.focus();
+          } else {
+            // 맨 첫번째로 포커스
+
+            const firstKey = Math.min(
+              ...Array.from(choiceDescriptionsRef.current.keys()),
+            );
+            choiceDescriptionsRef.current.get(firstKey)?.focus();
+          }
+        }
+        break;
+      case "cExplanation":
+        if (textRefs.current.size > 0) {
+          const firstEmpty = [...textRefs.current].find(
+            ([, desc]) => desc?.value.trim() === "",
+          );
+
+          if (firstEmpty) {
+            textRefs.current.get(firstEmpty[0])?.focus();
+          }
+        }
+        break;
+      case "correctAnswer":
+        correctAnswerRef.current?.focus();
+        break;
+      case "correctAnswerOX":
+        correctAnswerOXRef.current?.scrollIntoView({ behavior: "smooth" });
+        break;
+      case "view":
+        typeRef.current?.scrollIntoView({ behavior: "smooth" });
+        break;
+      case "preview":
+        imageRef.current?.scrollIntoView({ behavior: "smooth" });
+        break;
+      case "article":
+        articleRef.current?.focus();
+        break;
+      case "explanation":
+        explanationRef.current?.focus();
+        break;
+      default:
+        break;
+    }
+  }, [focusTarget]);
 
   return (
     <div
@@ -48,46 +221,290 @@ const Section = () => {
       className="w-full h-[75%] overflow-y-auto
     [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
-      <div id="question-title-container" className="w-[90%] mb-8 ml-4">
+      <div id="question-title-container" className="w-[90%] mb-6 ml-4">
         <h2 className={subtitleStyle}>
           지시문<span className="text-[#D52E7C]">*</span>
         </h2>
         <TextareaAutosize
-          className={textareaStyle}
-          placeholder="지시문을 입력하세요"
+          className={`${textareaStyle}
+            ${focusTarget && !questionTitle ? blankedWarningStyle : ""}`}
+          placeholder="지시문 입력"
+          value={questionTitle}
+          onChange={handleQuestionTitleChange}
+          ref={questionTitleRef}
         />
       </div>
-      <div id="type-container" className="w-[90%] mb-8 ml-4">
-        <h2 className={subtitleStyle}>
-          문제 유형<span className="text-[#D52E7C]">*</span>
-        </h2>
+      <div id="type-container" className="w-[90%] mb-8 ml-4 flex items-center">
+        <h2 className={subtitleStyle}>문제 유형</h2>
+        <Listbox value={type} onChange={setType}>
+          <div className="relative mt-1 ml-4" ref={typeRef}>
+            {/* 버튼 부분 (Trigger) */}
+            <ListboxButton
+              className="relative w-30 py-2 pl-4 pr-10 cursor-pointer
+                rounded-md border border-[#727272]
+                bg-transparent text-left text-[#727272]
+                focus:outline-none"
+            >
+              <span className="block truncate">{type.name}</span>
+              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                {/* 화살표 아이콘 */}
+                <svg
+                  className="h-5 w-5 text-[#727272]"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+            </ListboxButton>
+
+            {/* 애니메이션 효과 */}
+            <Transition
+              as={Fragment}
+              leave="transition ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <ListboxOptions
+                className="absolute z-10 mt-1 py-1 w-full
+              overflow-auto bg-white
+              border border-[#727272] rounded-md
+              text-base shadow-lg focus:outline-none sm:text-sm"
+              >
+                {typeOptions.map((option) => (
+                  <ListboxOption
+                    key={option.id}
+                    className={({ focus }) =>
+                      `relative cursor-default select-none py-2 pl-4 pr-4 ${
+                        focus ? "bg-[#f2f2f2] text-black" : "text-[#727272]"
+                      } outline-none`
+                    }
+                    value={option}
+                  >
+                    {({ selected }) => (
+                      <span
+                        className={`block truncate ${selected ? "font-bold" : "font-normal"}`}
+                      >
+                        {option.name}
+                      </span>
+                    )}
+                  </ListboxOption>
+                ))}
+              </ListboxOptions>
+            </Transition>
+          </div>
+        </Listbox>
       </div>
       <div id="tag-container" className="w-[90%] mb-8 ml-4 flex items-center">
         <h2 className={subtitleStyle}>
           태그<span className="text-[#D52E7C]">*</span>
         </h2>
         <div
-          className="ml-4 px-3 py-1
-        border border-[#727272] rounded-2xl 
+          className="ml-4 px-4 py-2
+        border border-[#727272] rounded-4xl 
         text-[#727272]
         flex items-center"
         >
           실험용
         </div>
       </div>
-      <div id="hint-container" className="w-[90%] mb-8 ml-4">
+      {type.value === "multiple-choice" ? (
+        <div id="choice-container" className="w-[90%] mb-8 ml-4">
+          <h2 className={subtitleStyle}>
+            선지별 내용<span className="text-[#D52E7C]">*</span>
+          </h2>
+          {[...choiceDescriptions].map(([index, [description, isCorrect]]) => (
+            <div key={index} className="relative">
+              <TextareaAutosize
+                className={`${choiceStyle}
+                  ${focusTarget && !description ? blankedWarningStyle : ""}`}
+                placeholder="선지 내용 입력"
+                value={description}
+                onChange={(e) => handleChoiceDescriptionChange(index, e)}
+                ref={(el) => {
+                  if (el) choiceDescriptionsRef.current.set(index, el);
+                }}
+              />
+              {/* textarea의 오른쪽 부분을 hover할 경우 선지를 삭제하거나 정답인 것을 표시하는 버튼 추가 */}
+
+              <div
+                className="absolute mr-4 right-0 top-1/2 transform -translate-y-1/2
+              flex items-center"
+              >
+                {choiceDescriptions.size < 2 ? null : (
+                  <button
+                    className="mr-2 text-sm text-red-500"
+                    onClick={() => {
+                      const newChoiceDescriptions = new Map(choiceDescriptions);
+                      newChoiceDescriptions.delete(index);
+                      setChoiceDescriptions(newChoiceDescriptions);
+
+                      const newChoiceExplanations = new Map(choiceExplanations);
+                      newChoiceExplanations.delete(index);
+                      setChoiceExplanations(newChoiceExplanations);
+                    }}
+                  >
+                    <Image
+                      src="/images/bin.png"
+                      alt="삭제 아이콘"
+                      width={20}
+                      height={20}
+                    />
+                  </button>
+                )}
+                <button
+                  className={`text-sm ${isCorrect ? "text-green-500" : "text-gray-500"}`}
+                  onClick={() => {
+                    const newChoiceDescriptions = new Map(choiceDescriptions);
+                    newChoiceDescriptions.set(index, [description, !isCorrect]);
+                    setChoiceDescriptions(newChoiceDescriptions);
+                  }}
+                >
+                  {isCorrect ? (
+                    <svg width="15" height="11" viewBox="0 0 15 11" fill="none">
+                      <path
+                        d="M4.76821 8.95757L13.5702 0.156568C13.6675 0.059235 13.7822 0.00723485 13.9142 0.000568181C14.0462 -0.00609849 14.1672 0.0459016 14.2772 0.156568C14.3872 0.267235 14.4425 0.386235 14.4432 0.513568C14.4439 0.640901 14.3889 0.759568 14.2782 0.869568L5.33421 9.81957C5.17221 9.98157 4.98355 10.0626 4.76821 10.0626C4.55288 10.0626 4.36421 9.98157 4.20221 9.81957L0.152212 5.76957C0.0548784 5.67224 0.00421176 5.55657 0.000211765 5.42257C-0.00378824 5.28857 0.0488784 5.16657 0.158212 5.05657C0.267545 4.94657 0.386545 4.89157 0.515212 4.89157C0.643878 4.89157 0.762878 4.94657 0.872212 5.05657L4.76821 8.95757Z"
+                        fill="#D52E7C"
+                      />
+                    </svg>
+                  ) : (
+                    <svg width="15" height="11" viewBox="0 0 15 11" fill="none">
+                      <path
+                        d="M4.76821 8.95757L13.5702 0.156568C13.6675 0.059235 13.7822 0.00723485 13.9142 0.000568181C14.0462 -0.00609849 14.1672 0.0459016 14.2772 0.156568C14.3872 0.267235 14.4425 0.386235 14.4432 0.513568C14.4439 0.640901 14.3889 0.759568 14.2782 0.869568L5.33421 9.81957C5.17221 9.98157 4.98355 10.0626 4.76821 10.0626C4.55288 10.0626 4.36421 9.98157 4.20221 9.81957L0.152212 5.76957C0.0548784 5.67224 0.00421176 5.55657 0.000211765 5.42257C-0.00378824 5.28857 0.0488784 5.16657 0.158212 5.05657C0.267545 4.94657 0.386545 4.89157 0.515212 4.89157C0.643878 4.89157 0.762878 4.94657 0.872212 5.05657L4.76821 8.95757Z"
+                        fill="#727272"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+          ))}
+          <button
+            className={`text-center ${choiceStyle}`}
+            onClick={() => {
+              const newChoiceDescriptions = new Map(choiceDescriptions);
+              const lastKey = Math.max(
+                ...Array.from(newChoiceDescriptions.keys()),
+              );
+
+              newChoiceDescriptions.set(lastKey + 1, ["", false]);
+              setChoiceDescriptions(newChoiceDescriptions);
+
+              const newChoiceExplanations = new Map(choiceExplanations);
+              newChoiceExplanations.set(lastKey + 1, "");
+              setChoiceExplanations(newChoiceExplanations);
+            }}
+          >
+            +
+          </button>
+        </div>
+      ) : type.value === "ox" ? (
+        <div id="ox-container" className="w-[90%] mb-8 ml-4">
+          <h2 className={subtitleStyle}>
+            정답<span className="text-[#D52E7C]">*</span>
+          </h2>
+          <div
+            id="button-group"
+            className="flex w-full mt-2"
+            ref={correctAnswerOXRef}
+          >
+            <button
+              className={`border-r-0 rounded-l-md
+            ${buttonStyle}
+            ${correctAnswerOX === "O" && "bg-[#f2f2f2]"}
+            active:bg-[#f2f2f2]
+              ${focusTarget && correctAnswerOX === null ? blankedWarningStyle : ""}`}
+              onClick={() => setCorrectAnswerOX("O")}
+            >
+              O
+            </button>
+            <button
+              className={`rounded-r-md
+            ${buttonStyle}
+            ${correctAnswerOX === "X" && "bg-[#f2f2f2]"}
+            active:bg-[#f2f2f2]
+              ${focusTarget && correctAnswerOX === null ? blankedWarningStyle : ""}`}
+              onClick={() => setCorrectAnswerOX("X")}
+            >
+              X
+            </button>
+          </div>
+        </div>
+      ) : (
+        type.value === "text-input" && (
+          <div id="text-input-container" className="w-[90%] mb-8 ml-4">
+            <h2 className={subtitleStyle}>
+              정답<span className="text-[#D52E7C]">*</span>
+            </h2>
+            <TextareaAutosize
+              className={`${textareaStyle}
+                ${focusTarget && !correctAnswer ? blankedWarningStyle : ""}`}
+              value={correctAnswer}
+              placeholder="정답 입력"
+              onChange={handleCorrectAnswerChange}
+              ref={correctAnswerRef}
+            />
+          </div>
+        )
+      )}
+      {type.value === "multiple-choice" && (
+        <div id="explanation-container" className="w-[90%] mb-8 ml-4">
+          <h2 className={subtitleStyle}>
+            선지별 해설<span className="text-[#D52E7C]">^</span>
+          </h2>
+
+          {[...choiceExplanations].map(([i, value]) => (
+            <div key={i}>
+              <TextareaAutosize
+                className={`${textareaStyle}
+                  ${focusTarget && !explanation && !choiceExplanations.get(i) ? blankedWarningStyle : ""}`}
+                placeholder={`${choiceDescriptions.get(i)?.[0] || "해설 입력"}`}
+                value={choiceExplanations.get(i) || ""}
+                onChange={(e) => handleChoiceExplanationChange(i, e)}
+                ref={(el) => {
+                  if (el) textRefs.current.set(i, el);
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+      <div id="solution-container" className="w-[90%] mb-8 ml-4">
         <h2 className={subtitleStyle}>
-          힌트<span className="text-[#D52E7C]">*</span>
+          해설<span className="text-[#D52E7C]">^</span>
         </h2>
         <TextareaAutosize
+          className={`${textareaStyle}
+            ${
+              focusTarget &&
+              !explanation &&
+              ![...choiceExplanations.values()].some(
+                (desc) => desc.trim() !== "",
+              )
+                ? blankedWarningStyle
+                : ""
+            }`}
+          placeholder="해설 입력"
+          value={explanation}
+          onChange={handleExplanationChange}
+          ref={explanationRef}
+        />
+      </div>
+      <div id="hint-container" className="w-[90%] mb-8 ml-4">
+        <h2 className={subtitleStyle}>힌트</h2>
+        <TextareaAutosize
           className={textareaStyle}
-          placeholder="힌트를 입력하세요"
+          placeholder="힌트 입력"
+          value={hint}
+          onChange={handleHintChange}
         />
       </div>
       <div id="view-container" className="w-[90%] mb-8 ml-4">
-        <h2 className={subtitleStyle}>
-          보기<span className="text-[#D52E7C]">*</span>
-        </h2>
+        <h2 className={subtitleStyle}>보기</h2>
         <div id="button-group" className="flex w-full mt-2">
           <button
             className={`border-r-0 
@@ -130,12 +547,13 @@ const Section = () => {
               type="file"
               accept="image/*"
               onChange={handleFileChange}
+              ref={imageRef}
             />
             <label htmlFor="image-upload">
               <div
-                className="w-26 h-26
+                className={`w-26 h-26
                 border border-gray-400 rounded-md
-                flex items-center justify-center"
+                flex items-center justify-center ${focusTarget && !preview ? blankedWarningStyle : ""}`}
               >
                 {preview ? (
                   <div className="w-full h-full bg-black">
@@ -175,50 +593,103 @@ const Section = () => {
           </div>
         ) : selectedView === "article" ? (
           <TextareaAutosize
-            className={textareaStyle}
+            className={`${textareaStyle}
+              ${focusTarget && !article ? blankedWarningStyle : ""}`}
             placeholder="본문 내용 입력"
+            value={article}
+            onChange={handleArticleChange}
+            ref={articleRef}
           />
         ) : null}
-      </div>
-      <div id="solution-container" className="w-[90%] mb-8 ml-4">
-        <h2 className={subtitleStyle}>
-          해설<span className="text-[#D52E7C]">^</span>
-        </h2>
-        <TextareaAutosize
-          className={textareaStyle}
-          placeholder="해설을 입력하세요"
-        />
-      </div>
-      <div id="explanation-container" className="w-[90%] mb-8 ml-4">
-        <h2 className={subtitleStyle}>
-          선지별 해설<span className="text-[#D52E7C]">^</span>
-        </h2>
-        <TextareaAutosize
-          className={textareaStyle}
-          placeholder="해설을 입력하세요"
-        />
       </div>
     </div>
   );
 };
 
 const Footer = () => {
+  const [questionTitle] = useAtom(questionTitleAtom);
+  const [type] = useAtom(typeAtom);
+  const [choiceDescriptions] = useAtom(choiceDescriptionAtom);
+  const [correctAnswer] = useAtom(correctAnswerAtom);
+  const [correctAnswerOX] = useAtom(correctAnswerOXAtom);
+  const [selectedView] = useAtom(selectedViewAtom);
+  const [article] = useAtom(articleContentAtom);
+  const [explanation] = useAtom(explanationAtom);
+  const [choiceExplanations] = useAtom(choiceExplanationAtom);
+  const [preview] = useAtom(previewAtom);
+  const [, setFocusTarget] = useAtom(focusTargetAtom);
+
+  const requestCreateQuiz = () => {
+    const trigger = (target: string) => {
+      setFocusTarget(`${target}-${Date.now()}`);
+    };
+
+    switch (true) {
+      case questionTitle.trim() === "":
+        trigger("questionTitle");
+        return;
+      case type.value === "multiple-choice" &&
+        (() => {
+          const descriptions = [...choiceDescriptions.values()];
+          // 1. 빈 내용이 있는지 체크
+          const hasEmpty = descriptions.some(([desc]) => desc.trim() === "");
+          // 2. 정답 체크가 하나라도 되어 있는지 확인
+          const hasNoCorrect = !descriptions.some(
+            ([, isCorrect]) => isCorrect === true,
+          );
+
+          return hasEmpty || hasNoCorrect;
+        })():
+        trigger("cDescription");
+        return;
+      case type.value === "multiple-choice" &&
+        [...choiceExplanations.values()].some(
+          (explanation) => explanation.trim() === "",
+        ) &&
+        explanation.trim() === "":
+        trigger("cExplanation");
+        return;
+      case type.value !== "multiple-choice" && explanation.trim() === "":
+        trigger("explanation");
+        return;
+      case type.value === "text-input" && correctAnswer.trim() === "":
+        trigger("correctAnswer");
+        return;
+      case type.value === "ox" && correctAnswerOX === null:
+        trigger("correctAnswerOX");
+        return;
+      case selectedView === "image" && !preview:
+        trigger("preview");
+        return;
+      case selectedView === "article" && article.trim() === "":
+        trigger("article");
+        return;
+      default:
+        break;
+    }
+
+    alert("문제 생성 요청이 성공적으로 전송되었습니다!");
+  };
+
   return (
-    <div className="w-full h-[10%] flex items-center justify-center">
-      <button
-        className="px-4 py-2 bg-transparent
+    <div className="w-[full] h-[10%] flex items-center justify-center">
+      <div className="w-[90%] flex">
+        <button
+          className="flex-1 px-4 py-2 bg-transparent
       border border-[#727272] rounded-md mr-2
       text-[#727272]"
-      >
-        생성 요청
-      </button>
-      <button
-        className="px-4 py-2 bg-transparent
+          onClick={requestCreateQuiz}
+        >
+          생성 요청
+        </button>
+        <button
+          className="flex-1 px-4 py-2 bg-transparent
       border border-[#727272] rounded-md
       text-[#727272]"
-      >
-        미리 보기
-      </button>
+        >
+          미리 보기
+        </button>
+      </div>
     </div>
   );
 };
