@@ -716,11 +716,10 @@ const Footer = () => {
 
     // firebase에 삽입
     try {
-      let finalImageUrl = null;
-
       // 만약 이미지가 선택된 상태라면 먼저 업로드
       if (selectedView === "image" && preview) {
-        finalImageUrl = await uploadImage(preview); // 여기서 진짜 URL을 받아옴
+        alert("사진은 현재 지원되지 않습니다.");
+        return;
       }
 
       const quizData = {
@@ -736,7 +735,7 @@ const Footer = () => {
         tag: ["실험용"],
         guide: guide,
         article: article.trim() === "" ? null : article,
-        image: preview ? finalImageUrl : null,
+        // image: preview ? finalImageUrl : null,
       };
 
       const quizRef = await addDoc(collection(db, "requested"), quizData);
