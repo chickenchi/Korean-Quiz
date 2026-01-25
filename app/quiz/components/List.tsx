@@ -6,9 +6,16 @@ import {
   showResultState,
   startedState,
 } from "@/app/atom/quizAtom";
-import { Bookmark, Category, Close, Help } from "@/public/svgs/ListSVG";
+import {
+  Bookmark,
+  Category,
+  Close,
+  Help,
+  MakeQuizIcon,
+} from "@/public/svgs/ListSVG";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtom } from "jotai";
+import Link from "next/link";
 import styled from "styled-components";
 
 const QuizList = styled(motion.div)`
@@ -75,6 +82,10 @@ const ListButton = styled.button`
 
   margin-right: 15px;
   margin-bottom: 5px;
+`;
+
+const ListButtonLink = styled(Link)`
+  text-decoration: none;
 `;
 
 const ListButtonText = styled.p`
@@ -146,6 +157,13 @@ export default function List() {
                 </ListButtonText>
                 <Help />
               </ListButton>
+
+              <ListButtonLink href="make_quiz">
+                <ListButton>
+                  <ListButtonText>문제 추가</ListButtonText>
+                  <MakeQuizIcon />
+                </ListButton>
+              </ListButtonLink>
             </ListButtonContainer>
           </ListContainer>
         </QuizList>

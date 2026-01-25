@@ -1,4 +1,6 @@
 "use client";
+import "@/app/tailwind.css";
+
 import {
   Listbox,
   ListboxButton,
@@ -7,8 +9,6 @@ import {
   Transition,
 } from "@headlessui/react";
 import { ChangeEvent, Fragment, useEffect, useRef } from "react";
-
-import Image from "next/image";
 
 import TextareaAutosize from "react-textarea-autosize";
 import {

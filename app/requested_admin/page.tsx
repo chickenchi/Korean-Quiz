@@ -1,4 +1,5 @@
 "use client";
+import "@/app/tailwind.css";
 import {
   addDoc,
   collection,
@@ -7,7 +8,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { useAtom } from "jotai";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../lib/client";
 import { parseTextStyle } from "../quiz/tools/parse_text_style";
 import { infoConfigState } from "../atom/quizAtom";
