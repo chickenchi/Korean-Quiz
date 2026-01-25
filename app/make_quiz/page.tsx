@@ -32,6 +32,7 @@ import { useAtom } from "jotai";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../lib/client";
 import { uploadImage } from "../tools/uploadImage";
+import { textarea } from "framer-motion/client";
 
 const Header = () => {
   return (
@@ -45,11 +46,11 @@ const Section = () => {
   const textareaStyle = `w-full mt-2 p-2
           border border-gray-300 rounded-md
           px-4 py-3
-          outline-none resize-none`;
+          outline-none`;
 
-  const choiceStyle = `w-[100%] h-12 mt-2 p-2
+  const choiceStyle = `w-full h-12 mt-2 p-2
         border border-gray-300 rounded-md
-        px-4 py-3
+        pl-4 pr-8 py-3
         outline-none`;
 
   const subtitleStyle = `text-2xl`;
@@ -229,6 +230,10 @@ const Section = () => {
     }
   }, [focusTarget]);
 
+  const isAnythingWritten =
+    explanation.trim() !== "" ||
+    [...choiceExplanations.values()].some((v) => v.trim() !== "");
+
   const showExplanationWarning =
     focusTarget &&
     (type.value === "multiple-choice"
@@ -406,7 +411,7 @@ const Section = () => {
             </div>
           ))}
           <button
-            className={`text-center ${choiceStyle}`}
+            className={`text-center ${textareaStyle}`}
             onClick={() => {
               const newChoiceDescriptions = new Map(choiceDescriptions);
               const lastKey = Math.max(
@@ -494,7 +499,7 @@ const Section = () => {
             <div key={i}>
               <TextareaAutosize
                 className={`${textareaStyle}
-                  ${focusTarget && !explanation && !choiceExplanations.get(i) ? blankedWarningStyle : ""}`}
+                  ${focusTarget && !isAnythingWritten && !choiceExplanations.get(i) ? blankedWarningStyle : ""}`}
                 placeholder={`${choiceDescriptions.get(i)?.[0] || "해설 입력"}`}
                 value={choiceExplanations.get(i) || ""}
                 onChange={(e) => handleChoiceExplanationChange(i, e)}
@@ -675,8 +680,8 @@ const Footer = () => {
         trigger("cDescription");
         return;
       case type.value === "multiple-choice" &&
-        [...choiceExplanations.values()].some(
-          (explanation) => explanation.trim() === "",
+        ![...choiceExplanations.values()].some(
+          (explanation) => explanation.trim() !== "",
         ) &&
         explanation.trim() === "":
         trigger("cExplanation");
