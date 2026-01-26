@@ -70,6 +70,8 @@ const ListButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  color: black;
 `;
 
 export default function Header() {

@@ -57,6 +57,8 @@ const ButtonImage = styled.button`
   background-color: transparent;
   border: none;
 
+  color: black;
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -253,6 +255,8 @@ const CorrectButton = styled.button`
 
   margin: 0;
   padding: 0;
+
+  color: black;
 `;
 
 const DividerContainer = styled.div``;
@@ -265,6 +269,8 @@ const WrongButton = styled.button`
 
   margin: 0;
   padding: 0;
+
+  color: black;
 `;
 
 const InputAnswer = styled.div`

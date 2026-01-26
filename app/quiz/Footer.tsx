@@ -42,6 +42,8 @@ const Button = styled.button`
   border-radius: 5px;
 
   font-size: 20px;
+
+  color: black;
 `;
 
 const SkipButton = styled(Button)`

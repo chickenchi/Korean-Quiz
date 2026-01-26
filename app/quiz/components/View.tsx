@@ -58,6 +58,8 @@ const CloseButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  color: black;
 `;
 
 const ViewSection = styled.section`
@@ -105,6 +107,8 @@ const SizeButton = styled.button`
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+
+  color: black;
 `;
 
 const ImageContainer = styled.div<{ $imageSize: number }>`
