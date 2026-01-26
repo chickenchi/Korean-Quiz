@@ -14,8 +14,13 @@ import {
   showPreviewAtom,
   typeAtom,
 } from "@/app/atom/makeQuizAtom";
-import { infoConfigState, openViewState } from "@/app/atom/quizAtom";
-import QuizView from "@/app/quiz/components/View";
+import {
+  infoConfigState,
+  openExplanationSheetState,
+  openViewState,
+} from "@/app/atom/quizAtom";
+import QuizView from "@/app/components/View";
+import ExplanationSheet from "@/app/components/explanation_sheet/ExplanationSheet";
 import { parseTextStyle } from "@/app/quiz/tools/parse_text_style";
 import { getCircleNumber } from "@/app/tools/getCircleNumber";
 import { Bookmark, DisabledBookmark } from "@/public/svgs/ListSVG";
@@ -30,6 +35,7 @@ import {
   Wrong,
   WrongAnswer,
 } from "@/public/svgs/QuizSVG";
+import { article } from "framer-motion/client";
 import { useAtom } from "jotai";
 import Image from "next/image";
 import { useState } from "react";
@@ -180,7 +186,10 @@ const Section = () => {
                 {part.text}
               </span>
             ))}
-            <div onClick={() => setOpenView(true)}>
+            <div
+              className="inline-block align-middle ml-1 mb-1"
+              onClick={() => setOpenView(true)}
+            >
               {(selectedView === "article" && <ShowView type="article" />) ||
                 (selectedView === "image" && <ShowView type="image" />)}
             </div>
@@ -202,6 +211,7 @@ const Section = () => {
 };
 
 const Footer = () => {
+  const [, setExplanationSheet] = useAtom(openExplanationSheetState);
   const [, setShowPreview] = useAtom(showPreviewAtom);
 
   const [, setInfoConfig] = useAtom(infoConfigState);
@@ -234,7 +244,10 @@ const Footer = () => {
         <button className={buttonStyle} onClick={() => showHint()}>
           힌트
         </button>
-        <button className={buttonStyle} /*onClick={() => showExplanation()}*/>
+        <button
+          className={buttonStyle}
+          onClick={() => setExplanationSheet(true)}
+        >
           해설
         </button>
         <button className={buttonStyle} onClick={() => setShowPreview(false)}>
@@ -247,15 +260,36 @@ const Footer = () => {
 
 export const Preview = () => {
   const [showPreview] = useAtom(showPreviewAtom);
+  const [image] = useAtom(previewAtom);
+  const [article] = useAtom(articleAtom);
+  const [selectedView] = useAtom(selectedViewAtom);
+
+  const [explanation] = useAtom(explanationAtom);
+  const [choiceDescription] = useAtom(choiceDescriptionAtom);
 
   if (!showPreview) return;
+
+  const rationale = [...choiceDescription].map(([_, [desc]]) => desc);
+
+  const correctEntry = [...choiceDescription].find(
+    ([_, [, isCorrect]]) => isCorrect,
+  );
+  const correctAnswer = correctEntry ? String(correctEntry[0]) : "";
 
   return (
     <div className="absolute w-full h-full bg-white z-10">
       <Header />
       <Section />
       <Footer />
-      <QuizView />
+      <QuizView
+        image={selectedView === "image" ? image : undefined}
+        article={selectedView === "article" ? article : undefined}
+      />
+      <ExplanationSheet
+        commentary={explanation}
+        rationale={rationale}
+        correctAnswer={correctAnswer}
+      />
     </div>
   );
 };

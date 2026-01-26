@@ -137,9 +137,14 @@ const Article = styled.div<{ $fontSize: number }>`
   }
 `;
 
-export default function QuizView() {
+export default function QuizView({
+  article,
+  image,
+}: {
+  article?: string;
+  image?: any;
+}) {
   const [openView, setOpenView] = useAtom(openViewState);
-  const [question] = useAtom(questionState);
 
   const [opacity, setOpacity] = useState([80]);
 
@@ -174,7 +179,7 @@ export default function QuizView() {
     setImageSize(newSize);
   };
 
-  if (!openView || !question) return false;
+  if (!openView || (!image && !article)) return false;
 
   return (
     <OverlayView>
@@ -185,12 +190,12 @@ export default function QuizView() {
           </CloseButton>
         </ViewHeader>
         <ViewSection>
-          {question.article ? (
-            <Article $fontSize={fontSize}>{question.article}</Article>
+          {article ? (
+            <Article $fontSize={fontSize}>{article}</Article>
           ) : (
             <ImageContainer $imageSize={imageSize}>
               <Image
-                src={question.image}
+                src={image}
                 alt="사진"
                 fill
                 style={{ objectFit: "contain" }}
@@ -243,14 +248,14 @@ export default function QuizView() {
           <SizeButtonContainer>
             <SizeButton
               onClick={() =>
-                question.article ? changeFontSize("+") : changeImageSize("+")
+                article ? changeFontSize("+") : changeImageSize("+")
               }
             >
               +
             </SizeButton>
             <SizeButton
               onClick={() =>
-                question.article ? changeFontSize("-") : changeImageSize("-")
+                article ? changeFontSize("-") : changeImageSize("-")
               }
             >
               -

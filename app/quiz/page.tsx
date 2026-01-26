@@ -5,8 +5,10 @@ import Header from "./Header";
 import Section from "./Section";
 import Footer from "./Footer";
 import List from "./components/List";
-import ExplanationSheet from "./components/ExplanationSheet";
-import QuizView from "./components/View";
+import ExplanationSheet from "../components/explanation_sheet/ExplanationSheet";
+import QuizView from "../components/View";
+import { answerState, questionState } from "../atom/quizAtom";
+import { useAtom } from "jotai";
 
 const QuizBackground = styled.div`
   position: relative;
@@ -16,6 +18,9 @@ const QuizBackground = styled.div`
 `;
 
 export default function Quiz() {
+  const [question] = useAtom(questionState);
+  const [answer] = useAtom(answerState);
+
   return (
     <QuizBackground>
       <Header />
@@ -24,8 +29,16 @@ export default function Quiz() {
         <Footer />
       </>
       <List />
-      <QuizView />
-      <ExplanationSheet />
+      <QuizView
+        article={question?.article ?? undefined}
+        image={question?.image ?? undefined}
+      />
+      <ExplanationSheet
+        commentary={question?.commentary}
+        rationale={question?.rationale}
+        correctAnswer={String(question?.correctAnswer)}
+        answer={answer}
+      />
     </QuizBackground>
   );
 }

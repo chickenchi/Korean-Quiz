@@ -1,21 +1,18 @@
-import {
-  answerState,
-  openExplanationSheetState,
-  questionState,
-} from "@/app/atom/quizAtom";
+import { openExplanationSheetState } from "@/app/atom/quizAtom";
 import { useAtom } from "jotai";
-import { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 
 import { Drawer } from "vaul";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { EllipsisText } from "./explanationComponent/ellipsisText";
+import { EllipsisText } from "./components/ellipsisText";
 import InfoModal from "@/app/components/InfoModal";
 
 const Overlay = styled(Drawer.Overlay)`
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
+
+  z-index: 20;
 `;
 
 const Content = styled(Drawer.Content)`
@@ -27,6 +24,8 @@ const Content = styled(Drawer.Content)`
   background: white;
   border-radius: 16px 16px 0 0;
   padding: 16px;
+
+  z-index: 20;
 `;
 
 const AnswerComparison = styled.div`
@@ -107,12 +106,18 @@ const RationaleText = styled.p`
   margin: 0;
 `;
 
-export default function ExplanationSheet() {
+export default function ExplanationSheet({
+  commentary,
+  rationale,
+  correctAnswer,
+  answer,
+}: {
+  commentary?: string;
+  rationale?: string[];
+  correctAnswer: string;
+  answer?: string;
+}) {
   const [open, setOpen] = useAtom(openExplanationSheetState);
-  const [question] = useAtom(questionState);
-  const [answer] = useAtom(answerState);
-
-  if (!question) return false;
 
   return (
     <Drawer.Root open={open} onOpenChange={setOpen}>
@@ -127,24 +132,26 @@ export default function ExplanationSheet() {
           <AnswerComparison>
             <AnswerCard>
               <AnswerTitle>정답</AnswerTitle>
-              <AnswerValue>{question.correctAnswer}</AnswerValue>
+              <AnswerValue>{correctAnswer}</AnswerValue>
             </AnswerCard>
-            <AnswerCard>
-              <AnswerTitle>내 답</AnswerTitle>
-              <EllipsisText text={answer} />
-            </AnswerCard>
+            {answer && (
+              <AnswerCard>
+                <AnswerTitle>내 답</AnswerTitle>
+                <EllipsisText text={answer} />
+              </AnswerCard>
+            )}
           </AnswerComparison>
 
           <Title>해설</Title>
           <Commentary>
-            {question.commentary ?? "하단에 있는 오답 보기를 확인해 주세요!"}
+            {commentary ?? "하단에 있는 오답 보기를 확인해 주세요!"}
           </Commentary>
 
-          {question.rationale && (
+          {rationale && rationale.some((item) => item?.trim()) && (
             <RationaleList>
-              <RationaleTitle>오답 보기</RationaleTitle>
+              <RationaleTitle>선지별 설명</RationaleTitle>
               <RationaleBody>
-                {question.rationale?.map((item, index) => (
+                {rationale?.map((item, index) => (
                   <>
                     {item && (
                       <RationaleRow key={index}>

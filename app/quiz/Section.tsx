@@ -26,7 +26,6 @@ import {
 } from "../atom/quizAtom";
 import { useAtom } from "jotai";
 import { selectQuestion } from "./tools/select_question";
-import { formatNumber } from "./tools/format_number";
 import { parseTextStyle } from "./tools/parse_text_style";
 
 const QuizSection = styled.div<{ $started: boolean; $showResult: boolean }>`

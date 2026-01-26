@@ -35,7 +35,7 @@ import { addDoc, collection } from "firebase/firestore";
 import { db } from "../lib/client";
 import { infoConfigState } from "../atom/quizAtom";
 import { Back } from "@/public/svgs/CategorySVG";
-import { Preview } from "./components/preview";
+import { Preview } from "./components/Preview";
 
 const Header = () => {
   return (
@@ -754,7 +754,12 @@ const Footer = () => {
 
     try {
       if (selectedView === "image" && preview) {
-        alert("사진은 현재 지원되지 않습니다.");
+        setInfoConfig({
+          content: "사진은 현재 지원되지 않습니다.",
+          onClose: () => {
+            setInfoConfig(null);
+          },
+        });
         return;
       }
 

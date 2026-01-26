@@ -11,7 +11,6 @@ import {
   questionState,
   showResultState,
   startedState,
-  viewedQuizState,
 } from "../atom/quizAtom";
 import { useAtom } from "jotai";
 import { selectQuestion } from "./tools/select_question";
