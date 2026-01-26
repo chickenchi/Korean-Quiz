@@ -6,7 +6,6 @@ import { useAtom } from "jotai";
 import Image from "next/image";
 import { useState } from "react";
 import { getTrackBackground, Range } from "react-range";
-import { IRenderThumbParams, IRenderTrackParams } from "react-range/lib/types";
 import styled from "styled-components";
 
 const OverlayView = styled.div`

@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { db } from "../lib/client";
 import { parseTextStyle } from "../quiz/tools/parse_text_style";
 import { infoConfigState } from "../atom/quizAtom";
+import { Back } from "@/public/svgs/CategorySVG";
 
 export interface questionData {
   id: string;
@@ -31,7 +32,13 @@ export interface questionData {
 
 const Header = () => {
   return (
-    <div className="w-full h-[15%] flex items-center justify-center">
+    <div className="relative w-full h-[15%] flex items-center justify-center">
+      <button
+        className="absolute right-6 top-6"
+        onClick={() => (window.location.href = "/quiz")}
+      >
+        <Back />
+      </button>
       <h1 className="text-3xl">요청 현황</h1>
     </div>
   );

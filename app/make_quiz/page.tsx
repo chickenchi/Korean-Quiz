@@ -21,9 +21,11 @@ import {
   focusTargetAtom,
   guideAtom,
   hintAtom,
+  loadingAtom,
   previewAtom,
   questionTitleAtom,
   selectedViewAtom,
+  showPreviewAtom,
   typeAtom,
   typeOptions,
 } from "../atom/makeQuizAtom";
@@ -31,13 +33,21 @@ import {
 import { useAtom } from "jotai";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../lib/client";
-import { uploadImage } from "../tools/uploadImage";
-import { textarea } from "framer-motion/client";
+import { infoConfigState } from "../atom/quizAtom";
+import { Back } from "@/public/svgs/CategorySVG";
+import { Preview } from "./components/preview";
 
 const Header = () => {
   return (
-    <div className="w-full h-[15%] flex items-center justify-center">
+    <div className="relative w-full h-[15%] flex items-center justify-center">
       <h1 className="text-3xl">문제 생성</h1>
+
+      <button
+        className="absolute right-6 top-6"
+        onClick={() => (window.location.href = "/quiz")}
+      >
+        <Back />
+      </button>
     </div>
   );
 };
@@ -417,24 +427,26 @@ const Section = () => {
               </div>
             </div>
           ))}
-          <button
-            className={`text-center ${textareaStyle}`}
-            onClick={() => {
-              const newChoiceDescriptions = new Map(choiceDescriptions);
-              const lastKey = Math.max(
-                ...Array.from(newChoiceDescriptions.keys()),
-              );
+          {choiceDescriptions.size < 20 && (
+            <button
+              className={`text-center ${textareaStyle}`}
+              onClick={() => {
+                const newChoiceDescriptions = new Map(choiceDescriptions);
+                const lastKey = Math.max(
+                  ...Array.from(newChoiceDescriptions.keys()),
+                );
 
-              newChoiceDescriptions.set(lastKey + 1, ["", false]);
-              setChoiceDescriptions(newChoiceDescriptions);
+                newChoiceDescriptions.set(lastKey + 1, ["", false]);
+                setChoiceDescriptions(newChoiceDescriptions);
 
-              const newChoiceExplanations = new Map(choiceExplanations);
-              newChoiceExplanations.set(lastKey + 1, "");
-              setChoiceExplanations(newChoiceExplanations);
-            }}
-          >
-            +
-          </button>
+                const newChoiceExplanations = new Map(choiceExplanations);
+                newChoiceExplanations.set(lastKey + 1, "");
+                setChoiceExplanations(newChoiceExplanations);
+              }}
+            >
+              +
+            </button>
+          )}
         </div>
       ) : type.value === "ox" ? (
         <div id="ox-container" className="w-[90%] mb-8 ml-4">
@@ -661,9 +673,13 @@ const Footer = () => {
   const [preview] = useAtom(previewAtom);
   const [hint] = useAtom(hintAtom);
   const [guide] = useAtom(guideAtom);
-  const [, setFocusTarget] = useAtom(focusTargetAtom);
 
-  const requestCreateQuiz = async () => {
+  const [, setLoading] = useAtom(loadingAtom);
+  const [, setFocusTarget] = useAtom(focusTargetAtom);
+  const [, setInfoConfig] = useAtom(infoConfigState);
+  const [, showPreview] = useAtom(showPreviewAtom);
+
+  const isFilled = (): boolean => {
     const trigger = (target: string) => {
       setFocusTarget(`${target}-${Date.now()}`);
     };
@@ -671,7 +687,7 @@ const Footer = () => {
     switch (true) {
       case questionTitle.trim() === "":
         trigger("questionTitle");
-        return;
+        return false;
       case type.value === "multiple-choice" &&
         (() => {
           const descriptions = [...choiceDescriptions.values()];
@@ -685,34 +701,42 @@ const Footer = () => {
           return hasEmpty || hasNoCorrect;
         })():
         trigger("cDescription");
-        return;
+        return false;
       case type.value === "multiple-choice" &&
         ![...choiceExplanations.values()].some(
           (explanation) => explanation.trim() !== "",
         ) &&
         explanation.trim() === "":
         trigger("cExplanation");
-        return;
+        return false;
       case type.value !== "multiple-choice" && explanation.trim() === "":
         trigger("explanation");
-        return;
+        return false;
       case type.value === "text-input" && correctAnswer.trim() === "":
         trigger("correctAnswer");
-        return;
+        return false;
       case type.value === "ox" && correctAnswerOX === null:
         trigger("correctAnswerOX");
-        return;
+        return false;
       case selectedView === "image" && !preview:
         trigger("preview");
-        return;
+        return false;
       case selectedView === "article" && article.trim() === "":
         trigger("article");
-        return;
+        return false;
       default:
         break;
     }
 
+    return true;
+  };
+
+  const requestCreateQuiz = async () => {
+    if (!isFilled()) return;
+
     const getCorrectAnswer = () => {
+      setLoading(true);
+
       const handlers = {
         "text-input": () => correctAnswer,
         ox: () => correctAnswerOX,
@@ -728,9 +752,7 @@ const Footer = () => {
       return handler ? handler() : undefined;
     };
 
-    // firebase에 삽입
     try {
-      // 만약 이미지가 선택된 상태라면 먼저 업로드
       if (selectedView === "image" && preview) {
         alert("사진은 현재 지원되지 않습니다.");
         return;
@@ -749,20 +771,38 @@ const Footer = () => {
         tag: ["실험용"],
         guide: guide,
         article: article.trim() === "" ? null : article,
-        // image: preview ? finalImageUrl : null,
       };
 
-      const quizRef = await addDoc(collection(db, "requested"), quizData);
+      await addDoc(collection(db, "requested"), quizData);
 
-      console.log("성공");
+      setInfoConfig({
+        content: "요청이 완료되었습니다!",
+        onClose: () => {
+          window.location.href = "/quiz";
+          setInfoConfig(null);
+        },
+      });
     } catch (e) {
       console.error("Error adding document: ", e);
-      alert("저장 중 오류가 발생했습니다.");
+      setInfoConfig({
+        content: "요청 중 오류가 발생했습니다.",
+        onClose: () => {
+          setInfoConfig(null);
+        },
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
+  const openPreview = () => {
+    if (!isFilled()) return;
+
+    showPreview(true);
+  };
+
   return (
-    <div className="w-[full] h-[10%] flex items-center justify-center">
+    <div className="w-full h-[10%] flex items-center justify-center">
       <div className="w-[90%] flex">
         <button
           className="flex-1 px-4 py-2 bg-transparent
@@ -776,6 +816,7 @@ const Footer = () => {
           className="flex-1 px-4 py-2 bg-transparent
       border border-[#727272] rounded-md
       text-[#727272]"
+          onClick={openPreview}
         >
           미리 보기
         </button>
@@ -785,8 +826,20 @@ const Footer = () => {
 };
 
 export default function MakeQuiz() {
+  const [loading] = useAtom(loadingAtom);
+
   return (
-    <div className="w-full h-full">
+    <div className="relative w-full h-full">
+      <Preview />
+      {loading && (
+        <div
+          className="absolute w-full h-full bg-black opacity-50
+        flex items-center justify-center
+        z-1"
+        >
+          <p className="text-white text-3xl">로딩 중...</p>
+        </div>
+      )}
       <Header />
       <Section />
       <Footer />

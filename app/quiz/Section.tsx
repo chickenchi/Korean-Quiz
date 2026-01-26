@@ -341,8 +341,6 @@ export const MultipleChoice = ({
 };
 
 export const TextInput = ({ guide }: { guide: string | undefined }) => {
-  if (!guide) return;
-
   const [quizAnswer, setQuizAnswer] = useAtom(answerState);
   const [showResult] = useAtom(showResultState);
 
@@ -352,7 +350,7 @@ export const TextInput = ({ guide }: { guide: string | undefined }) => {
 
   return (
     <InputAnswer>
-      <Guide>{guide}</Guide>
+      {guide && <Guide>{guide}</Guide>}
       <Input
         value={quizAnswer}
         onChange={handleQuizAnswerChange}

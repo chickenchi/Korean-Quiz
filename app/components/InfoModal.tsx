@@ -82,7 +82,7 @@ const Button = styled.button`
 `;
 
 export default function InfoModal() {
-  const [infoModalProps, setInfoModalProps] = useAtom(infoConfigState);
+  const [infoModalProps] = useAtom(infoConfigState);
 
   if (!infoModalProps) return null;
 
@@ -90,11 +90,11 @@ export default function InfoModal() {
     <ModalOverlay
       onClick={(e) => {
         e.stopPropagation();
-        setInfoModalProps(null);
+        infoModalProps.onClose();
       }}
     >
       <ModalContent onClick={(e) => e.stopPropagation()}>
-        <ModalCloseButton onClick={() => setInfoModalProps(null)}>
+        <ModalCloseButton onClick={() => infoModalProps.onClose()}>
           <Close />
         </ModalCloseButton>
 

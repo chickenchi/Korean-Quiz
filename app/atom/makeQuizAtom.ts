@@ -27,3 +27,7 @@ export const articleAtom = atom<string>("");
 export const explanationAtom = atom<string>("");
 
 export const focusTargetAtom = atom<string | null>(null);
+
+export const loadingAtom = atom<boolean>(false);
+
+export const showPreviewAtom = atom<boolean>(false);
