@@ -7,6 +7,7 @@ import {
   startedState,
 } from "@/app/atom/quizAtom";
 import {
+  Approve,
   Bookmark,
   Category,
   Close,
@@ -156,6 +157,13 @@ export default function List() {
                 <ListButton>
                   <ListButtonText>문제 추가</ListButtonText>
                   <MakeQuizIcon />
+                </ListButton>
+              </ListButtonLink>
+
+              <ListButtonLink href="requested_admin">
+                <ListButton>
+                  <ListButtonText>문제 승인</ListButtonText>
+                  <Approve />
                 </ListButton>
               </ListButtonLink>
             </ListButtonContainer>
