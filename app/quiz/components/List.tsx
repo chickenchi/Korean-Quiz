@@ -36,7 +36,7 @@ export default function List() {
     });
   };
 
-  const linkButtonStyle = `flex items-center mr-[15px] mb-6 bg-transparent border-none group`;
+  const linkButtonStyle = `flex items-center mr-[15px] mb-8 bg-transparent border-none group`;
   const linkTextStyle = `text-[13pt] font-normal text-black mr-3 group-active:text-gray-400`;
 
   return (

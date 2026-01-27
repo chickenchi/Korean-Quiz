@@ -12,6 +12,7 @@ import { db } from "../lib/client";
 import { infoConfigState } from "../atom/quizAtom";
 import { Back } from "@/public/svgs/CategorySVG";
 import { ParsedText } from "../components/ParsedText";
+import { useRouter } from "next/navigation";
 
 export interface questionData {
   id: string;
@@ -30,11 +31,13 @@ export interface questionData {
 }
 
 const Header = () => {
+  const router = useRouter();
+
   return (
     <div className="relative w-full h-[15%] flex items-center justify-center">
       <button
         className="absolute right-6 top-6"
-        onClick={() => (window.location.href = "/quiz")}
+        onClick={() => router.replace("/quiz")}
       >
         <Back />
       </button>
@@ -48,14 +51,6 @@ const Section = () => {
     questionData[] | null
   >(null);
   const [, setInfoConfig] = useAtom(infoConfigState);
-
-  useEffect(() => {
-    const password = prompt("관리자 암호를 입력하세요");
-    if (password !== process.env.NEXT_PUBLIC_ADMIN_KEY) {
-      alert("어딜 감히 ㅎㅎ");
-      window.location.href = "/";
-    }
-  }, []);
 
   useEffect(() => {
     const col = collection(db, "requested");
@@ -108,8 +103,9 @@ const Section = () => {
     >
       {requestedQuizList ? (
         <div>
-          {requestedQuizList.map((data) => (
+          {requestedQuizList.map((data, index) => (
             <div
+              key={index}
               className="relative w-[90%] ml-4 mb-3 px-4 py-3
               border border-[#727272] rounded"
             >
@@ -142,6 +138,22 @@ const Footer = () => {
 };
 
 export default function RequestedAdmin() {
+  const router = useRouter();
+  const [locked, setLocked] = useState(true);
+
+  useEffect(() => {
+    const password = prompt("관리자 암호를 입력하세요");
+
+    if (password !== process.env.NEXT_PUBLIC_ADMIN_KEY) {
+      alert("어딜 감히 ㅎㅎ");
+      router.replace("/");
+    } else {
+      setLocked(false);
+    }
+  }, []);
+
+  if (locked) return;
+
   return (
     <div className="w-full h-full">
       <Header />

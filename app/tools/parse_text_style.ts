@@ -5,6 +5,7 @@ interface TextPart {
   underline?: boolean; // 밑줄 추가
   sub?: boolean;
   sup?: boolean;
+  // 추가 시 위치
 }
 
 export const parseTextStyle = (text: string): TextPart[] => {
@@ -12,8 +13,9 @@ export const parseTextStyle = (text: string): TextPart[] => {
     { pattern: /\/\*(.*?)\*\//g, key: "bold" },     
     { pattern: /\/(?!\*)(.*?)\//g, key: "italic" },  
     { pattern: /_(?!\()([^_]+)_/g, key: "underline" },
-    { pattern: /\^\((.*?)\)/g, key: "sup" },
+    { pattern: /\^\((.*?)\)/g, key: "sup" },         
     { pattern: /_\((.*?)\)/g, key: "sub" },
+    // 추가 시 위치
   ];
 
   let charStyles = text.split("").map((char) => ({
@@ -23,6 +25,7 @@ export const parseTextStyle = (text: string): TextPart[] => {
     underline: false,
     sub: false,
     sup: false,
+    // 추가 시 위치
     removed: false,
   }));
 
@@ -62,6 +65,7 @@ export const parseTextStyle = (text: string): TextPart[] => {
       currentPart.underline === item.underline &&
       currentPart.sub === item.sub &&
       currentPart.sup === item.sup
+      // 추가 시 위치
     ) {
       currentPart.text += item.char;
     } else {
@@ -72,6 +76,7 @@ export const parseTextStyle = (text: string): TextPart[] => {
         underline: item.underline,
         sub: item.sub,
         sup: item.sup,
+        // 추가 시 위치
       };
       result.push(currentPart);
     }

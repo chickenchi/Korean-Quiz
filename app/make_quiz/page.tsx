@@ -23,6 +23,7 @@ import {
   loadingAtom,
   previewAtom,
   questionTitleAtom,
+  resetAllWroteItemsAtom,
   selectedViewAtom,
   showPreviewAtom,
   typeAtom,
@@ -36,15 +37,19 @@ import { infoConfigState } from "../atom/quizAtom";
 import { Back } from "@/public/svgs/CategorySVG";
 import { Preview } from "./components/Preview";
 import { ParsedText } from "../components/ParsedText";
+import { useRouter } from "next/navigation";
+import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
 
 const Header = () => {
+  const router = useRouter();
+
   return (
     <div className="relative w-full h-[15%] flex items-center justify-center">
       <h1 className="text-3xl">문제 생성</h1>
 
       <button
         className="absolute right-6 top-6"
-        onClick={() => (window.location.href = "/quiz")}
+        onClick={() => router.replace("/quiz")}
       >
         <Back />
       </button>
@@ -80,8 +85,9 @@ const Section = () => {
     setQuestionTitle(e.target.value);
   };
 
-  // Style Guide
+  // Style Guide & Special Chars
   const [showStyleGuide, setShowStyleGuide] = useState(false);
+  const [showSpecialChars, setShowSpecialChars] = useState(false);
 
   // Type
   const [type, setType] = useAtom(typeAtom);
@@ -254,6 +260,13 @@ const Section = () => {
         ![...choiceExplanations.values()].some((desc) => desc.trim() !== "")
       : !explanation && type.value !== "multiple-choice");
 
+  const SPECIAL_CHARS = [
+    { label: "√", value: "√" },
+    { label: "±", value: "±" },
+    { label: "×", value: "×" },
+    { label: "÷", value: "÷" },
+  ];
+
   return (
     <div
       id="section"
@@ -298,6 +311,57 @@ const Section = () => {
                 <span>_내용_: 밑줄</span>
                 <span>^(내용): 위 첨자</span>
                 <span> _(내용): 아래 첨자</span>
+              </div>
+            )}
+          </div>
+
+          <div className="relative ml-2">
+            <button
+              className="flex items-center justify-center"
+              onClick={() => setShowSpecialChars(!showSpecialChars)}
+            >
+              <svg width="17" height="17" viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M7 14C3.14 14 0 10.86 0 7C0 3.14 3.14 0 7 0C10.86 0 14 3.14 14 7C14 10.86 10.86 14 7 14ZM7 1C3.69 1 1 3.69 1 7C1 10.31 3.69 13 7 13C10.31 13 13 10.31 13 7C13 3.69 10.31 1 7 1Z"
+                  fill="#727272"
+                />
+                <path
+                  d="M7 10.5C6.72 10.5 6.5 10.28 6.5 10V4C6.5 3.72 6.72 3.5 7 3.5C7.28 3.5 7.5 3.72 7.5 4V10C7.5 10.28 7.28 10.5 7 10.5Z"
+                  fill="#727272"
+                />
+                <path
+                  d="M10 7.5H4C3.72 7.5 3.5 7.28 3.5 7C3.5 6.72 3.72 6.5 4 6.5H10C10.28 6.5 10.5 6.72 10.5 7C10.5 7.28 10.28 7.5 10 7.5Z"
+                  fill="#727272"
+                />
+              </svg>
+            </button>
+
+            {showSpecialChars && (
+              <div
+                className="absolute top-full left-0 mt-2 p-2
+      bg-white border border-[#727272] rounded
+      flex text text-[#727272] z-2"
+                onClick={() => setShowStyleGuide(false)}
+              >
+                {SPECIAL_CHARS.map((char, index) => (
+                  <div className="h-full flex flex-row items-center">
+                    <button
+                      key={char.label}
+                      type="button"
+                      className="px-2 py-1 hover:bg-gray-100 hover:text-black rounded transition-colors border border-transparent hover:border-gray-200"
+                      onClick={() => {
+                        setQuestionTitle((prev) => prev + char.value);
+                        // 입력 후 팝업을 닫고 싶다면 여기서 처리
+                        // setShowSpecialChars(false);
+                      }}
+                    >
+                      {char.label}
+                    </button>
+                    {index !== SPECIAL_CHARS.length - 1 && (
+                      <div className="h-4 w-[1px] bg-[#727272] opacity-50" />
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -697,6 +761,8 @@ const Section = () => {
 };
 
 const Footer = () => {
+  const router = useRouter();
+
   const [questionTitle] = useAtom(questionTitleAtom);
   const [type] = useAtom(typeAtom);
   const [choiceDescriptions] = useAtom(choiceDescriptionAtom);
@@ -714,6 +780,8 @@ const Footer = () => {
   const [, setFocusTarget] = useAtom(focusTargetAtom);
   const [, setInfoConfig] = useAtom(infoConfigState);
   const [, showPreview] = useAtom(showPreviewAtom);
+
+  const [, resetAll] = useAtom(resetAllWroteItemsAtom);
 
   const isFilled = (): boolean => {
     const trigger = (target: string) => {
@@ -819,7 +887,8 @@ const Footer = () => {
       setInfoConfig({
         content: "요청이 완료되었습니다!",
         onClose: () => {
-          window.location.href = "/quiz";
+          router.push("/quiz");
+          resetAll();
           setInfoConfig(null);
         },
       });

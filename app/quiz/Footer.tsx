@@ -103,48 +103,39 @@ export default function Footer() {
     setOpenExplanationSheet(true);
   };
 
+  const buttonStyle = "flex-1 self-start py-2.5 b-4 border rounded text-lg";
+
   return (
     <footer
-      className={`relative w-full h-[10%] items-end pb-[15px] 
+      className={`w-full h-[10%] flex items-center justify-center 
       ${started || showResult ? "flex" : "hidden"}`}
     >
       {!showResult ? (
-        <div className="relative w-full h-full px-[10px]">
-          {/* 힌트 버튼 섹션 (좌측) */}
-          <div className="absolute left-[10px] bottom-0 w-[25%] h-[50px]">
-            {/* 힌트 카운트 말풍선 */}
-            <div className="absolute top-[-35px] left-0 w-full flex items-center justify-center space-x-1">
+        <div className="w-[90%] mb-2 flex gap-2">
+          <div className="relative flex-1">
+            <div className="absolute top-[-30px] left-0 w-full flex items-center justify-center space-x-1">
               <Clue />
               <span className="text-[14pt] tabular-nums font-medium">
                 {hintCount}
               </span>
             </div>
-            <button
-              onClick={hintCheck}
-              className="w-full h-full border border-black rounded-[5px] text-[20px] text-black bg-transparent active:bg-gray-100 transition-colors"
-            >
+            <button onClick={hintCheck} className={`${buttonStyle} w-full`}>
               힌트
             </button>
           </div>
 
           {/* 정답 확인 버튼 (중앙) */}
-          <button
-            onClick={answerCheck}
-            className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[40%] h-[50px] border border-black rounded-[5px] text-[20px] text-black bg-transparent active:bg-gray-100 transition-colors"
-          >
+          <button onClick={answerCheck} className={`${buttonStyle} flex-2`}>
             정답 확인
           </button>
 
           {/* 넘기기 버튼 (우측) */}
-          <button
-            onClick={passCheck}
-            className="absolute right-[10px] bottom-0 w-[25%] h-[50px] border border-black rounded-[5px] text-[20px] text-black bg-transparent active:bg-gray-100 transition-colors"
-          >
+          <button onClick={passCheck} className={buttonStyle}>
             넘기기
           </button>
         </div>
       ) : (
-        <div className="w-full h-[50px] px-[10px] flex gap-[10px]">
+        <div className="w-[90%] mb-2 flex gap-2">
           {/* 다음 문제 버튼 (핑크 포인트) */}
           <button
             onClick={nextQuiz}

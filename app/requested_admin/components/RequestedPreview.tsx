@@ -246,7 +246,7 @@ const Footer = () => {
   );
 };
 
-export const Preview = () => {
+export const RequestedPreview = () => {
   const [showPreview] = useAtom(showPreviewAtom);
   const [image] = useAtom(previewAtom);
   const [article] = useAtom(articleAtom);
