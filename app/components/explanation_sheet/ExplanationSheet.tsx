@@ -5,7 +5,7 @@ import { useAtom } from "jotai";
 import { Drawer } from "vaul";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { EllipsisText } from "./components/ellipsisText";
-import InfoModal from "@/app/components/InfoModal";
+import InfoModal from "@/app/components/info_modal/InfoModal";
 
 export default function ExplanationSheet({
   commentary,

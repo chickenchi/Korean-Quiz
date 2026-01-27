@@ -1,9 +1,9 @@
 "use client";
 
 import { useAtom } from "jotai";
-import { confirmConfigState } from "../atom/modalAtom";
 import Image from "next/image";
 import { Close } from "@/public/svgs/ListSVG";
+import { confirmConfigState } from "@/app/atom/modalAtom";
 
 export default function ConfirmModal() {
   const [confirmModalProps, setConfirmModalProps] = useAtom(confirmConfigState);

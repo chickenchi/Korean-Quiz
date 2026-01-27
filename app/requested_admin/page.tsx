@@ -13,12 +13,14 @@ import {
   infoConfigState,
   inputConfigState,
   inputModalCloseState,
+  loginConfigState,
 } from "../atom/modalAtom";
 import { Back } from "@/public/svgs/CategorySVG";
 import { ParsedText } from "../components/ParsedText";
 import { useRouter } from "next/navigation";
 import { RequestedPreview } from "./components/RequestedPreview";
 import { previewConfigAtom } from "../atom/reqAdminAtom";
+import { userAtom } from "../atom/userAtom";
 
 export interface questionData {
   id: string;
@@ -152,28 +154,33 @@ const Footer = () => {
 export default function RequestedAdmin() {
   const router = useRouter();
   const [locked, setLocked] = useState(true);
-  const [, setInputConfig] = useAtom(inputConfigState);
-  const [, inputModalClose] = useAtom(inputModalCloseState);
+
+  const [user] = useAtom(userAtom);
+  const [, setLoginConfig] = useAtom(loginConfigState);
+  const [, setInfoConfig] = useAtom(infoConfigState);
 
   useEffect(() => {
-    if (!locked) return;
+    if (user === undefined) return;
 
-    setInputConfig({
-      content: "관리자 암호를 입력하세요",
-      onCancel: () => {
-        inputModalClose();
-      },
-      onConfirm: (content) => {
-        inputModalClose();
-
-        if (content === process.env.NEXT_PUBLIC_ADMIN_KEY) {
-          setLocked(false);
-        } else {
-          router.replace("/");
-        }
-      },
-    });
-  }, [locked]);
+    if (!user) {
+      setLoginConfig({
+        onClose: () => {
+          router.back();
+          setLoginConfig(null);
+        },
+      });
+    } else if (user.role !== "admin") {
+      setInfoConfig({
+        content: "일반 유저는 사용하실 수 없습니다.",
+        onClose: () => {
+          router.back();
+          setInfoConfig(null);
+        },
+      });
+    } else {
+      setLocked(false);
+    }
+  }, [user]);
 
   if (locked) return;
 

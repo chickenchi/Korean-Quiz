@@ -33,12 +33,13 @@ import {
 import { useAtom } from "jotai";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../lib/client";
-import { infoConfigState } from "../atom/modalAtom";
+import { infoConfigState, loginConfigState } from "../atom/modalAtom";
 import { Back } from "@/public/svgs/CategorySVG";
 import { Preview } from "./components/Preview";
 import { ParsedText } from "../components/ParsedText";
 import { useRouter } from "next/navigation";
 import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
+import { userAtom } from "../atom/userAtom";
 
 const Header = () => {
   const router = useRouter();
@@ -936,7 +937,27 @@ const Footer = () => {
 };
 
 export default function MakeQuiz() {
+  const [user] = useAtom(userAtom);
+  const [, setLoginConfig] = useAtom(loginConfigState);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user === undefined) return;
+
+    if (!user) {
+      setLoginConfig({
+        onClose: () => {
+          router.back();
+          setLoginConfig(null);
+        },
+      });
+    }
+  }, [user]);
+
   const [loading] = useAtom(loadingAtom);
+
+  if (!user) return;
 
   return (
     <div className="relative w-full h-full">

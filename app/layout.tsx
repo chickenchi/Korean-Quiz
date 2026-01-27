@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import ConfirmModal from "./components/ConfirmModal";
-import InfoModal from "./components/InfoModal";
+import ConfirmModal from "./components/confirm_modal/ConfirmModal";
+import InfoModal from "./components/info_modal/InfoModal";
 import localFont from "next/font/local";
-import InputModal from "./components/InputModal";
+import InputModal from "./components/input_modal/InputModal";
+import LoginModal from "./components/login_modal/LoginModal";
+import AuthProvider from "./components/auth_provider/AuthProvider";
 
 const cafe24OnePrettyNight = localFont({
   src: [
@@ -32,10 +34,13 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <ConfirmModal />
-        <InfoModal />
-        <InputModal />
-        {children}
+        <AuthProvider>
+          <ConfirmModal />
+          <InfoModal />
+          <InputModal />
+          <LoginModal />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

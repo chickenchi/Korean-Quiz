@@ -6,6 +6,7 @@ import {
   showResultState,
   startedState,
 } from "@/app/atom/quizAtom";
+import { userAtom } from "@/app/atom/userAtom";
 import {
   Approve,
   Bookmark,
@@ -17,12 +18,15 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtom } from "jotai";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function List() {
   const [listOpen, setListOpen] = useAtom(listOpenState);
   const [showResult] = useAtom(showResultState);
   const [, setStarted] = useAtom(startedState);
   const [, setInfoConfig] = useAtom(infoConfigState);
+
+  const [user] = useAtom(userAtom);
 
   const listClosing = () => {
     setListOpen(false);
@@ -91,12 +95,14 @@ export default function List() {
                 </div>
               </Link>
 
-              <Link href="requested_admin" className="no-underline">
-                <div className={linkButtonStyle}>
-                  <span className={linkTextStyle}>문제 승인</span>
-                  <Approve />
-                </div>
-              </Link>
+              {user?.role === "admin" && (
+                <Link href="requested_admin" className="no-underline">
+                  <div className={linkButtonStyle}>
+                    <span className={linkTextStyle}>문제 승인</span>
+                    <Approve />
+                  </div>
+                </Link>
+              )}
             </div>
           </motion.div>
         </motion.div>
