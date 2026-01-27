@@ -33,7 +33,7 @@ import {
 import { useAtom } from "jotai";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../lib/client";
-import { infoConfigState } from "../atom/quizAtom";
+import { infoConfigState } from "../atom/modalAtom";
 import { Back } from "@/public/svgs/CategorySVG";
 import { Preview } from "./components/Preview";
 import { ParsedText } from "../components/ParsedText";

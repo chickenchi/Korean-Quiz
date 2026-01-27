@@ -1,7 +1,7 @@
 "use client";
 
+import { infoConfigState } from "@/app/atom/modalAtom";
 import {
-  infoConfigState,
   listOpenState,
   showResultState,
   startedState,

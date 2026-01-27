@@ -78,9 +78,7 @@ export const TextInput = ({ guide }: { guide: string | undefined }) => {
   return (
     <div className="flex flex-col items-center w-full space-y-4">
       {guide && (
-        <p className="w-[80%] ml-[30px] text-center text-[17px] text-gray-600">
-          {guide}
-        </p>
+        <p className="w-[80%] text-center text-[17px] text-gray-600">{guide}</p>
       )}
       <input
         value={quizAnswer}
@@ -88,7 +86,7 @@ export const TextInput = ({ guide }: { guide: string | undefined }) => {
         type="text"
         placeholder="정답을 입력해 주세요"
         disabled={showResult}
-        className="h-[50px] w-[80%] ml-[30px] px-[10px] border border-[#888888] rounded-[10px] text-[#888888] text-[16px] outline-none disabled:bg-gray-50"
+        className="h-[50px] w-[80%] px-[10px] border border-[#888888] rounded-[10px] text-[#888888] text-[16px] outline-none disabled:bg-gray-50"
       />
     </div>
   );
@@ -203,7 +201,7 @@ export default function Section() {
       {/* QuizContainer */}
       <div className="flex flex-col h-[80%] overflow-y-auto scrollbar-hide">
         {/* Title Container */}
-        <div className="flex items-center w-[90%] mb-5">
+        <div className="flex items-center w-[90%] mt-2 mb-5">
           <div className="relative ml-[30px] text-[23pt] font-semibold">
             00
             {showResult && (

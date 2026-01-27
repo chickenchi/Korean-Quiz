@@ -1,6 +1,6 @@
 "use client";
 
-import { infoConfigState } from "@/app/atom/quizAtom";
+import { infoConfigState } from "@/app/atom/modalAtom";
 import { useAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
 

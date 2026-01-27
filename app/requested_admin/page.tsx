@@ -9,10 +9,16 @@ import {
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { db } from "../lib/client";
-import { infoConfigState } from "../atom/quizAtom";
+import {
+  infoConfigState,
+  inputConfigState,
+  inputModalCloseState,
+} from "../atom/modalAtom";
 import { Back } from "@/public/svgs/CategorySVG";
 import { ParsedText } from "../components/ParsedText";
 import { useRouter } from "next/navigation";
+import { RequestedPreview } from "./components/RequestedPreview";
+import { previewConfigAtom } from "../atom/reqAdminAtom";
 
 export interface questionData {
   id: string;
@@ -51,6 +57,7 @@ const Section = () => {
     questionData[] | null
   >(null);
   const [, setInfoConfig] = useAtom(infoConfigState);
+  const [, setPreviewConfig] = useAtom(previewConfigAtom);
 
   useEffect(() => {
     const col = collection(db, "requested");
@@ -106,8 +113,10 @@ const Section = () => {
           {requestedQuizList.map((data, index) => (
             <div
               key={index}
+              role="button"
               className="relative w-[90%] ml-4 mb-3 px-4 py-3
               border border-[#727272] rounded"
+              onClick={() => setPreviewConfig(data.id)}
             >
               <div key={data.id} className="w-[90%] flex flex-row gap-1">
                 <div className="truncate min-w-0">
@@ -119,7 +128,10 @@ const Section = () => {
             absolute right-3 bottom-1/2 translate-y-1/2
             text-[#727272]
             border border-[#727272] rounded"
-                onClick={() => approveRequest(data.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  approveRequest(data.id);
+                }}
               >
                 승인
               </button>
@@ -134,31 +146,43 @@ const Section = () => {
 };
 
 const Footer = () => {
-  return <div></div>;
+  return <div className="relative"></div>;
 };
 
 export default function RequestedAdmin() {
   const router = useRouter();
   const [locked, setLocked] = useState(true);
+  const [, setInputConfig] = useAtom(inputConfigState);
+  const [, inputModalClose] = useAtom(inputModalCloseState);
 
   useEffect(() => {
-    const password = prompt("관리자 암호를 입력하세요");
+    if (!locked) return;
 
-    if (password !== process.env.NEXT_PUBLIC_ADMIN_KEY) {
-      alert("어딜 감히 ㅎㅎ");
-      router.replace("/");
-    } else {
-      setLocked(false);
-    }
-  }, []);
+    setInputConfig({
+      content: "관리자 암호를 입력하세요",
+      onCancel: () => {
+        inputModalClose();
+      },
+      onConfirm: (content) => {
+        inputModalClose();
+
+        if (content === process.env.NEXT_PUBLIC_ADMIN_KEY) {
+          setLocked(false);
+        } else {
+          router.replace("/");
+        }
+      },
+    });
+  }, [locked]);
 
   if (locked) return;
 
   return (
-    <div className="w-full h-full">
+    <div className="relative w-full h-full">
       <Header />
       <Section />
       <Footer />
+      <RequestedPreview />
     </div>
   );
 }

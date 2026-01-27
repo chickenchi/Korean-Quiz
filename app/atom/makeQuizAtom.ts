@@ -2,7 +2,13 @@ import { atom } from "jotai";
 
 export const questionTitleAtom = atom<string>("");
 
-export const typeOptions = [
+export interface typeOption {
+    id: number,
+    name: string,
+    value: string
+}
+
+export const typeOptions: typeOption[] = [
     { id: 1, name: "다지선다", value: "multiple-choice" },
     { id: 2, name: "주관식", value: "text-input" },
     { id: 3, name: "OX", value: "ox" },

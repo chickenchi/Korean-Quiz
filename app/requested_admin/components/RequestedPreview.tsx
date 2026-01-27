@@ -6,18 +6,15 @@ import {
   correctAnswerOXAtom,
   explanationAtom,
   guideAtom,
-  hintAtom,
   previewAtom,
-  questionTitleAtom,
   selectedViewAtom,
-  showPreviewAtom,
   typeAtom,
+  typeOption,
 } from "@/app/atom/makeQuizAtom";
-import {
-  infoConfigState,
-  openExplanationSheetState,
-  openViewState,
-} from "@/app/atom/quizAtom";
+
+import { previewConfigAtom } from "@/app/atom/reqAdminAtom";
+import { openExplanationSheetState, openViewState } from "@/app/atom/quizAtom";
+import { infoConfigState } from "@/app/atom/modalAtom";
 import QuizView from "@/app/components/View";
 import ExplanationSheet from "@/app/components/explanation_sheet/ExplanationSheet";
 import { getCircleNumber } from "@/app/tools/getCircleNumber";
@@ -33,8 +30,11 @@ import {
 } from "@/public/svgs/QuizSVG";
 import { useAtom } from "jotai";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ParsedText } from "@/app/components/ParsedText";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "@/app/lib/client";
+import { questionData } from "../page";
 
 const Header = () => {
   return (
@@ -53,27 +53,29 @@ const Header = () => {
   );
 };
 
-export const MultipleChoice = () => {
+export const MultipleChoice = ({
+  options,
+  correctAnswer,
+}: {
+  options: { description: string }[];
+  correctAnswer: string | undefined;
+}) => {
   // options, correctNumber
 
-  const [choiceDescription] = useAtom(choiceDescriptionAtom);
-
-  if (!choiceDescription.size) return null;
+  if (!options || !correctAnswer) return;
 
   return (
     <div className="ml-10 flex flex-col">
-      {[...choiceDescription].map((option, index) => {
-        const [desc, isCorrect] = option[1];
-
+      {options.map((option, index) => {
         return (
           <div
-            className={`w-[90%] flex items-start mb-5 ${isCorrect ? "text-[#E04E92]" : "text-black"}`}
+            className={`w-[90%] flex items-start mb-5 ${correctAnswer === String(index) ? "text-[#E04E92]" : "text-black"}`}
             key={index}
           >
             <div className="mr-2 text-xl shrink-0">
               {getCircleNumber(index)}
             </div>
-            <div className="text-xl break-all">{desc}</div>
+            <div className="text-xl break-all">{option.description}</div>
           </div>
         );
       })}
@@ -81,9 +83,14 @@ export const MultipleChoice = () => {
   );
 };
 
-export const TextInput = () => {
-  const [guide] = useAtom(guideAtom);
-  const [questionAnswer] = useAtom(correctAnswerAtom);
+export const TextInput = ({
+  guide,
+  correctAnswer,
+}: {
+  guide: string | undefined;
+  correctAnswer: string | undefined;
+}) => {
+  if (!guide || !correctAnswer) return;
 
   return (
     <div className="w-full flex justify-center flex-col">
@@ -102,40 +109,56 @@ export const TextInput = () => {
         text-[#727272]"
         type="text"
         placeholder="정답을 입력해 주세요"
-        value={questionAnswer}
+        value={correctAnswer}
         disabled
       />
     </div>
   );
 };
 
-export const OX = () => {
-  const [questionAnswerOX] = useAtom(correctAnswerOXAtom);
+export const OX = ({
+  correctAnswer,
+}: {
+  correctAnswer: string | undefined;
+}) => {
+  if (!correctAnswer) return;
 
   return (
     <div className="flex flex-row justify-center items-flex-start">
       <button disabled>
-        <Correct lineColor={questionAnswerOX == "O" ? "#E04E92" : "#FFC7E2"} />
+        <Correct lineColor={correctAnswer == "O" ? "#E04E92" : "#FFC7E2"} />
       </button>
       <div>
-        <Divider lineColor={questionAnswerOX ? "#E04E92" : "#FFC7E2"} />
+        <Divider lineColor={correctAnswer ? "#E04E92" : "#FFC7E2"} />
       </div>
       <button disabled>
-        <Wrong lineColor={questionAnswerOX == "X" ? "#E04E92" : "#FFC7E2"} />
+        <Wrong lineColor={correctAnswer == "X" ? "#E04E92" : "#FFC7E2"} />
       </button>
     </div>
   );
 };
 
-const Section = () => {
+const Section = ({
+  questionTitle,
+  selectedView,
+  type,
+  guide,
+  correctAnswer,
+  options,
+}: {
+  questionTitle: string;
+  selectedView: "none" | "image" | "article";
+  type: string;
+  guide?: string;
+  correctAnswer?: string;
+  options?: { description: string }[];
+}) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [tagActive, setTagActive] = useState(false);
 
   const [, setOpenView] = useAtom(openViewState);
 
-  const [questionTitle] = useAtom(questionTitleAtom);
-  const [selectedView] = useAtom(selectedViewAtom);
-  const [type] = useAtom(typeAtom);
+  if (!options) return;
 
   return (
     <div className="w-full h-[75%]">
@@ -184,12 +207,12 @@ const Section = () => {
           </div>
         </div>
 
-        {type.value == "multiple-choice" ? (
-          <MultipleChoice />
-        ) : type.value == "text-input" ? (
-          <TextInput />
-        ) : type.value == "ox" ? (
-          <OX />
+        {type == "multiple-choice" ? (
+          <MultipleChoice options={options} correctAnswer={correctAnswer} />
+        ) : type == "text-input" ? (
+          <TextInput guide={guide} correctAnswer={correctAnswer} />
+        ) : type == "ox" ? (
+          <OX correctAnswer={correctAnswer} />
         ) : (
           <>뭔가 잘못된 것 같은데요?</>
         )}
@@ -198,13 +221,11 @@ const Section = () => {
   );
 };
 
-const Footer = () => {
+const Footer = ({ hint }: { hint: string | undefined }) => {
   const [, setExplanationSheet] = useAtom(openExplanationSheetState);
-  const [, setShowPreview] = useAtom(showPreviewAtom);
+  const [, setShowPreview] = useAtom(previewConfigAtom);
 
   const [, setInfoConfig] = useAtom(infoConfigState);
-
-  const [hint] = useAtom(hintAtom);
 
   const showHint = () => {
     if (!hint) {
@@ -238,7 +259,7 @@ const Footer = () => {
         >
           해설
         </button>
-        <button className={buttonStyle} onClick={() => setShowPreview(false)}>
+        <button className={buttonStyle} onClick={() => setShowPreview(null)}>
           돌아가기
         </button>
       </div>
@@ -247,46 +268,64 @@ const Footer = () => {
 };
 
 export const RequestedPreview = () => {
-  const [showPreview] = useAtom(showPreviewAtom);
-  const [image] = useAtom(previewAtom);
-  const [article] = useAtom(articleAtom);
-  const [selectedView] = useAtom(selectedViewAtom);
-  const [type] = useAtom(typeAtom);
+  const [previewId] = useAtom(previewConfigAtom);
+  const [requestedQuizList, setRequestedQuizList] =
+    useState<questionData | null>(null);
 
-  const [explanation] = useAtom(explanationAtom);
-  const [choiceDescription] = useAtom(choiceDescriptionAtom);
+  useEffect(() => {
+    if (!previewId) {
+      setRequestedQuizList(null);
+      return;
+    }
 
-  const [correctAnswer] = useAtom(correctAnswerAtom);
-  const [correctAnswerOX] = useAtom(correctAnswerOXAtom);
+    const col = collection(db, "requested");
 
-  if (!showPreview) return;
+    const unsubscribe = onSnapshot(col, (snapshot) => {
+      const foundDoc = snapshot.docs.find((doc) => doc.id === previewId);
 
-  const rationale = [...choiceDescription].map(([_, [desc]]) => desc);
+      const rQL = foundDoc
+        ? {
+            ...(foundDoc.data() as questionData),
+            id: foundDoc.id,
+          }
+        : null;
 
-  const correctEntry = [...choiceDescription].find(
-    ([_, [, isCorrect]]) => isCorrect,
-  );
-  const selectCorrectAnswer = correctEntry ? String(correctEntry[0]) : "";
+      setRequestedQuizList(rQL);
+    });
+
+    return () => unsubscribe();
+  }, [previewId]);
+
+  if (!previewId || !requestedQuizList) return;
+
+  const selectedView = requestedQuizList.image
+    ? "image"
+    : requestedQuizList.article
+      ? "article"
+      : "none";
 
   return (
-    <div className="absolute w-full h-full bg-white z-10">
+    <div className="absolute top-0 left-0 w-full h-full bg-white z-10">
       <Header />
-      <Section />
-      <Footer />
+      <Section
+        questionTitle={requestedQuizList.question}
+        selectedView={selectedView}
+        type={requestedQuizList.type}
+        guide={requestedQuizList.guide}
+        correctAnswer={String(requestedQuizList.correctAnswer)}
+        options={requestedQuizList.options}
+      />
+      <Footer hint={requestedQuizList.hint} />
       <QuizView
-        image={selectedView === "image" ? image : undefined}
-        article={selectedView === "article" ? article : undefined}
+        image={selectedView === "image" ? requestedQuizList.image : undefined}
+        article={
+          selectedView === "article" ? requestedQuizList.article : undefined
+        }
       />
       <ExplanationSheet
-        commentary={explanation}
-        rationale={rationale}
-        correctAnswer={
-          type.value === "multiple-choice"
-            ? selectCorrectAnswer
-            : type.value === "OX"
-              ? (correctAnswerOX ?? "")
-              : (correctAnswer ?? "")
-        }
+        commentary={requestedQuizList.commentary}
+        rationale={requestedQuizList.rationale}
+        correctAnswer={String(requestedQuizList.correctAnswer)}
       />
     </div>
   );

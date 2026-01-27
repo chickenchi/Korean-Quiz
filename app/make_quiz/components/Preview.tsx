@@ -13,11 +13,7 @@ import {
   showPreviewAtom,
   typeAtom,
 } from "@/app/atom/makeQuizAtom";
-import {
-  infoConfigState,
-  openExplanationSheetState,
-  openViewState,
-} from "@/app/atom/quizAtom";
+import { openExplanationSheetState, openViewState } from "@/app/atom/quizAtom";
 import QuizView from "@/app/components/View";
 import ExplanationSheet from "@/app/components/explanation_sheet/ExplanationSheet";
 import { getCircleNumber } from "@/app/tools/getCircleNumber";
@@ -35,6 +31,7 @@ import { useAtom } from "jotai";
 import Image from "next/image";
 import { useState } from "react";
 import { ParsedText } from "@/app/components/ParsedText";
+import { infoConfigState } from "@/app/atom/modalAtom";
 
 const Header = () => {
   return (

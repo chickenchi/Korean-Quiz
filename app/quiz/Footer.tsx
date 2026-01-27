@@ -2,10 +2,8 @@
 
 import {
   answerState,
-  confirmConfigState,
   hintCountState,
   hintState,
-  infoConfigState,
   openExplanationSheetState,
   questionState,
   showResultState,
@@ -14,6 +12,7 @@ import {
 import { useAtom } from "jotai";
 import { selectQuestion } from "./tools/select_question";
 import { Clue } from "@/public/svgs/QuizSVG";
+import { confirmConfigState, infoConfigState } from "../atom/modalAtom";
 
 export default function Footer() {
   const [hintCount, setHintCount] = useAtom(hintCountState);
@@ -103,7 +102,7 @@ export default function Footer() {
     setOpenExplanationSheet(true);
   };
 
-  const buttonStyle = "flex-1 self-start py-2.5 b-4 border rounded text-lg";
+  const buttonStyle = "flex-1 self-start py-2.5 b-4 border rounded text-xl";
 
   return (
     <footer
@@ -139,15 +138,12 @@ export default function Footer() {
           {/* 다음 문제 버튼 (핑크 포인트) */}
           <button
             onClick={nextQuiz}
-            className="flex-1 h-full bg-[#e04e92] text-white rounded-[5px] text-[20px] active:opacity-90 transition-opacity"
+            className={`${buttonStyle} bg-[#e04e92] text-white`}
           >
             다음 문제
           </button>
           {/* 해설 버튼 */}
-          <button
-            onClick={showExplanation}
-            className="flex-1 h-full border border-black rounded-[5px] text-[20px] text-black bg-transparent active:bg-gray-50 transition-colors"
-          >
+          <button onClick={showExplanation} className={buttonStyle}>
             해설
           </button>
         </div>

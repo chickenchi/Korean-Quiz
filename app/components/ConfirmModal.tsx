@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtom } from "jotai";
-import { confirmConfigState } from "../atom/quizAtom";
+import { confirmConfigState } from "../atom/modalAtom";
 import Image from "next/image";
 import { Close } from "@/public/svgs/ListSVG";
 

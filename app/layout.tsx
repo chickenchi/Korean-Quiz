@@ -3,6 +3,7 @@ import "./globals.css";
 import ConfirmModal from "./components/ConfirmModal";
 import InfoModal from "./components/InfoModal";
 import localFont from "next/font/local";
+import InputModal from "./components/InputModal";
 
 const cafe24OnePrettyNight = localFont({
   src: [
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body>
         <ConfirmModal />
         <InfoModal />
+        <InputModal />
         {children}
       </body>
     </html>

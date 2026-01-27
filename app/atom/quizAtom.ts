@@ -15,19 +15,5 @@ export const hintCountState = atom<number>(1000);
 
 export const listOpenState = atom<boolean>(false);
 
-interface ConfirmModal {
-    type?: 'default' | 'danger';
-    content: string;
-    onConfirm: () => void;
-    onCancel: () => void;
-}
-
-interface InfoModal {
-    content: string;
-    onClose: () => void;
-}
-
-export const confirmConfigState = atom<ConfirmModal | null>(null);
-export const infoConfigState = atom<InfoModal | null>(null);
 export const openExplanationSheetState = atom(false);
 export const openViewState = atom(false);
