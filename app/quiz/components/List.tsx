@@ -14,11 +14,11 @@ import {
   Close,
   Help,
   MakeQuizIcon,
+  Request,
 } from "@/public/svgs/ListSVG";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtom } from "jotai";
 import Link from "next/link";
-import { useEffect } from "react";
 
 export default function List() {
   const [listOpen, setListOpen] = useAtom(listOpenState);
@@ -92,6 +92,15 @@ export default function List() {
                 <div className={linkButtonStyle}>
                   <span className={linkTextStyle}>문제 추가</span>
                   <MakeQuizIcon />
+                </div>
+              </Link>
+
+              <Link href="requested" className="no-underline">
+                <div className={linkButtonStyle}>
+                  <span className={linkTextStyle}>
+                    {user?.role === "admin" ? "만든 문제" : "요청 문제"}
+                  </span>
+                  <Request />
                 </div>
               </Link>
 

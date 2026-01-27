@@ -10,9 +10,9 @@ import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { db } from "../lib/client";
 import {
+  confirmConfigState,
   infoConfigState,
   inputConfigState,
-  inputModalCloseState,
   loginConfigState,
 } from "../atom/modalAtom";
 import { Back } from "@/public/svgs/CategorySVG";
@@ -59,6 +59,8 @@ const Section = () => {
     questionData[] | null
   >(null);
   const [, setInfoConfig] = useAtom(infoConfigState);
+  const [, setInputConfig] = useAtom(inputConfigState);
+  const [, setConfirmConfig] = useAtom(confirmConfigState);
   const [, setPreviewConfig] = useAtom(previewConfigAtom);
 
   useEffect(() => {
@@ -105,38 +107,115 @@ const Section = () => {
     }
   };
 
+  const reject = (id: string) => {
+    setInputConfig({
+      content: "사유",
+      placeholder: "요청 거부 사유를 작성해 주세요.",
+      onConfirm: (content) => {
+        setInputConfig(null);
+
+        setConfirmConfig({
+          content: `거부 사유를 ${content ? `'${content}'라고 작성하셨습니다.` : "작성하지 않으셨습니다."}
+부당 거부 시, 제재를 받을 수 있습니다!
+계속하시겠습니까?`,
+          onCancel: () => {
+            setConfirmConfig(null);
+            setInfoConfig({
+              content: "취소되었습니다.",
+              onClose: () => {
+                setInfoConfig(null);
+              },
+            });
+          },
+          onConfirm: () => {
+            setConfirmConfig(null);
+            rejectRequest(id, content);
+          },
+        });
+      },
+      onCancel: () => {
+        setInputConfig(null);
+      },
+    });
+  };
+
+  const rejectRequest = async (id: string, content: string) => {
+    try {
+      const targetQuiz = requestedQuizList?.find((quiz) => quiz.id === id);
+      if (!targetQuiz) return;
+
+      await addDoc(collection(db, "rejected"), {
+        ...targetQuiz,
+        rejectedAt: Date.now(),
+        reason: content,
+      });
+
+      await deleteDoc(doc(db, "requested", id));
+
+      setInfoConfig({
+        content: "요청 거부가 완료되었습니다.",
+        onClose: () => {
+          setInfoConfig(null);
+        },
+      });
+    } catch (error) {
+      console.error("거절 중 에러 발생:", error);
+      setInfoConfig({
+        content: "거절 중 문제가 발생했습니다.",
+        onClose: () => {
+          setInfoConfig(null);
+        },
+      });
+    }
+  };
+
+  const buttonStyle = `p-1 px-2
+            text-[#727272]
+            border border-[#727272] rounded`;
+
   return (
     <div
       className="w-full h-[75%] overflow-y-auto
     [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {requestedQuizList ? (
-        <div>
+        <div className="w-full h-full">
           {requestedQuizList.map((data, index) => (
             <div
               key={index}
               role="button"
               className="relative w-[90%] ml-4 mb-3 px-4 py-3
               border border-[#727272] rounded"
-              onClick={() => setPreviewConfig(data.id)}
+              onClick={() =>
+                setPreviewConfig({ id: data.id, questionType: "requested" })
+              }
             >
-              <div key={data.id} className="w-[90%] flex flex-row gap-1">
-                <div className="truncate min-w-0">
+              <div key={data.id} className="w-[70%]">
+                <div className="truncate">
                   <ParsedText text={data.question} />
                 </div>
               </div>
-              <button
-                className="p-1 px-2
-            absolute right-3 bottom-1/2 translate-y-1/2
-            text-[#727272]
-            border border-[#727272] rounded"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  approveRequest(data.id);
-                }}
-              >
-                승인
-              </button>
+
+              <div className="absolute right-3 bottom-1/2 translate-y-1/2">
+                <button
+                  className={`${buttonStyle} mr-2`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    approveRequest(data.id);
+                  }}
+                >
+                  승인
+                </button>
+                <button
+                  className={buttonStyle}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    reject(data.id);
+                  }}
+                >
+                  거부
+                </button>
+              </div>
             </div>
           ))}
         </div>

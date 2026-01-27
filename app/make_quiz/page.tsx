@@ -39,7 +39,7 @@ import { Preview } from "./components/Preview";
 import { ParsedText } from "../components/ParsedText";
 import { useRouter } from "next/navigation";
 import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
-import { userAtom } from "../atom/userAtom";
+import { userAtom, UserState } from "../atom/userAtom";
 
 const Header = () => {
   const router = useRouter();
@@ -761,7 +761,7 @@ const Section = () => {
   );
 };
 
-const Footer = () => {
+const Footer = ({ user }: { user: UserState }) => {
   const router = useRouter();
 
   const [questionTitle] = useAtom(questionTitleAtom);
@@ -836,7 +836,7 @@ const Footer = () => {
     return true;
   };
 
-  const requestCreateQuiz = async () => {
+  const createQuiz = async () => {
     if (!isFilled()) return;
 
     const getCorrectAnswer = () => {
@@ -871,22 +871,30 @@ const Footer = () => {
       const quizData = {
         question: questionTitle,
         type: type.value,
-        options: Array.from(choiceDescriptions.entries()).map(
-          ([, [description]]) => ({ description }),
+        options: Array.from(choiceDescriptions.values()).map(
+          ([description]) => ({
+            description,
+          }),
         ),
         rationale: Array.from(choiceExplanations.values()),
         correctAnswer: getCorrectAnswer(),
-        commentary: explanation.trim() === "" ? null : explanation,
-        hint: hint.trim() === "" ? null : hint,
+        commentary: explanation.trim() || null,
+        hint: hint.trim() || null,
         tag: ["실험용"],
-        guide: guide,
-        article: article.trim() === "" ? null : article,
+        guide,
+        article: article.trim() || null,
+        author: user.uid,
       };
 
-      await addDoc(collection(db, "requested"), quizData);
+      if (user.role === "admin")
+        await addDoc(collection(db, "question"), quizData);
+      else await addDoc(collection(db, "requested"), quizData);
 
       setInfoConfig({
-        content: "요청이 완료되었습니다!",
+        content:
+          user.role === "admin"
+            ? "문제 등록이 완료되었습니다!"
+            : "문제 요청이 완료되었습니다!",
         onClose: () => {
           router.push("/quiz");
           resetAll();
@@ -919,9 +927,9 @@ const Footer = () => {
           className="flex-1 px-4 py-2 bg-transparent
       border border-[#727272] rounded-md mr-2
       text-[#727272]"
-          onClick={requestCreateQuiz}
+          onClick={createQuiz}
         >
-          생성 요청
+          {user.role === "admin" ? "문제 생성" : "생성 요청"}
         </button>
         <button
           className="flex-1 px-4 py-2 bg-transparent
@@ -973,7 +981,7 @@ export default function MakeQuiz() {
       )}
       <Header />
       <Section />
-      <Footer />
+      <Footer user={user} />
     </div>
   );
 }

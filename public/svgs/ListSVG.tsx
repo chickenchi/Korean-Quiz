@@ -80,6 +80,41 @@ export const MakeQuizIcon = () => {
   );
 };
 
+export const Request = () => {
+  return (
+    <svg width="22" height="22" viewBox="0 0 14 14" fill="none">
+      <path
+        d="M11.5 13.25C12.4665 13.25 13.25 12.4665 13.25 11.5C13.25 10.5335 12.4665 9.75 11.5 9.75C10.5335 9.75 9.75 10.5335 9.75 11.5C9.75 12.4665 10.5335 13.25 11.5 13.25Z"
+        stroke="black"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M2.5 13.25C3.4665 13.25 4.25 12.4665 4.25 11.5C4.25 10.5335 3.4665 9.75 2.5 9.75C1.5335 9.75 0.75 10.5335 0.75 11.5C0.75 12.4665 1.5335 13.25 2.5 13.25Z"
+        stroke="black"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M2.5 4.25C3.4665 4.25 4.25 3.4665 4.25 2.5C4.25 1.5335 3.4665 0.75 2.5 0.75C1.5335 0.75 0.75 1.5335 0.75 2.5C0.75 3.4665 1.5335 4.25 2.5 4.25Z"
+        stroke="black"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.25 0.75L6.75 2.75L8.25 4.75M11.25 9.25V4.25C11.25 3.25 10.75 2.75 9.75 2.75H7.75M2.75 4.75V9.25"
+        stroke="black"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
 export const Approve = () => {
   return (
     <svg width="22" height="21" viewBox="0 0 22 21" fill="none">

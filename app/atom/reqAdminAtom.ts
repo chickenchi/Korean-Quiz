@@ -1,3 +1,8 @@
 import { atom } from "jotai";
 
-export const previewConfigAtom = atom<string | null>(null);
+interface Preview {
+    id: string;
+    questionType: "requested" | "rejected" | "question";
+}
+
+export const previewConfigAtom = atom<Preview | null>(null);
