@@ -138,17 +138,19 @@ const Section = ({ user }: { user: UserState }) => {
           <ParsedText text={data.question} />
         </div>
 
-        <div className="absolute right-3 bottom-1/2 translate-y-1/2">
-          <button
-            className={`${buttonStyle}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              readRejectedReason(data.reason);
-            }}
-          >
-            사유
-          </button>
-        </div>
+        {type === "rejected" && (
+          <div className="absolute right-3 bottom-1/2 translate-y-1/2">
+            <button
+              className={`${buttonStyle}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                readRejectedReason(data.reason);
+              }}
+            >
+              사유
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
