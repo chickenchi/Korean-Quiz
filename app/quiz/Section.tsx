@@ -100,7 +100,7 @@ export const OX = () => {
   const inactiveColor = "#FFC7E2";
 
   return (
-    <div className="flex justify-center items-start w-full mt-0 ml-[15px]">
+    <div className="flex justify-center items-start w-full mt-0">
       <button
         onClick={() => setQuizAnswer("O")}
         disabled={showResult}

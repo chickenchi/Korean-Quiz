@@ -280,7 +280,7 @@ export const Preview = () => {
         correctAnswer={
           type.value === "multiple-choice"
             ? selectCorrectAnswer
-            : type.value === "OX"
+            : type.value === "ox"
               ? (correctAnswerOX ?? "")
               : (correctAnswer ?? "")
         }
