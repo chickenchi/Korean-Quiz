@@ -23,6 +23,7 @@ import {
   loadingAtom,
   previewAtom,
   questionTitleAtom,
+  quizIdAtom,
   resetAllWroteItemsAtom,
   selectedViewAtom,
   showPreviewAtom,
@@ -31,27 +32,56 @@ import {
 } from "../atom/makeQuizAtom";
 
 import { useAtom } from "jotai";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, setDoc } from "firebase/firestore";
 import { db } from "../lib/client";
-import { infoConfigState, loginConfigState } from "../atom/modalAtom";
+import {
+  confirmConfigState,
+  infoConfigState,
+  loginConfigState,
+} from "../atom/modalAtom";
 import { Back } from "@/public/svgs/CategorySVG";
 import { Preview } from "./components/Preview";
 import { ParsedText } from "../components/ParsedText";
 import { useRouter } from "next/navigation";
-import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
 import { userAtom, UserState } from "../atom/userAtom";
 
 const Header = () => {
   const router = useRouter();
+  const [quizId] = useAtom(quizIdAtom);
+  const [, setConfirmConfig] = useAtom(confirmConfigState);
+  const [, resetAll] = useAtom(resetAllWroteItemsAtom);
+
+  const exit = () => {
+    const message = quizId
+      ? `수정을 취소하시겠습니까?
+수정 중인 내용은 저장되지 않습니다!`
+      : `퇴장하시겠습니까?
+작성 중인 내용은 임시 저장됩니다.`;
+
+    setConfirmConfig({
+      type: quizId ? "danger" : "default",
+      content: message,
+      onCancel: () => {
+        setConfirmConfig(null);
+      },
+      onConfirm: () => {
+        setConfirmConfig(null);
+
+        if (quizId) {
+          router.replace("/requested");
+          resetAll();
+        } else {
+          router.replace("/quiz");
+        }
+      },
+    });
+  };
 
   return (
     <div className="relative w-full h-[15%] flex items-center justify-center">
-      <h1 className="text-3xl">문제 생성</h1>
+      <h1 className="text-3xl">{quizId ? "문제 수정" : "문제 생성"}</h1>
 
-      <button
-        className="absolute right-6 top-6"
-        onClick={() => router.replace("/quiz")}
-      >
+      <button className="absolute right-6 top-6" onClick={exit}>
         <Back />
       </button>
     </div>
@@ -764,6 +794,8 @@ const Section = () => {
 const Footer = ({ user }: { user: UserState }) => {
   const router = useRouter();
 
+  const [quizId] = useAtom(quizIdAtom);
+
   const [questionTitle] = useAtom(questionTitleAtom);
   const [type] = useAtom(typeAtom);
   const [choiceDescriptions] = useAtom(choiceDescriptionAtom);
@@ -780,6 +812,7 @@ const Footer = ({ user }: { user: UserState }) => {
   const [, setLoading] = useAtom(loadingAtom);
   const [, setFocusTarget] = useAtom(focusTargetAtom);
   const [, setInfoConfig] = useAtom(infoConfigState);
+  const [, setConfirmConfig] = useAtom(confirmConfigState);
   const [, showPreview] = useAtom(showPreviewAtom);
 
   const [, resetAll] = useAtom(resetAllWroteItemsAtom);
@@ -837,11 +870,9 @@ const Footer = ({ user }: { user: UserState }) => {
   };
 
   const createQuiz = async () => {
-    if (!isFilled()) return;
+    setLoading(true);
 
     const getCorrectAnswer = () => {
-      setLoading(true);
-
       const handlers = {
         "text-input": () => correctAnswer,
         ox: () => correctAnswerOX,
@@ -858,25 +889,19 @@ const Footer = ({ user }: { user: UserState }) => {
     };
 
     try {
-      if (selectedView === "image" && preview) {
-        setInfoConfig({
-          content: "사진은 현재 지원되지 않습니다.",
-          onClose: () => {
-            setInfoConfig(null);
-          },
-        });
-        return;
-      }
-
       const quizData = {
         question: questionTitle,
         type: type.value,
-        options: Array.from(choiceDescriptions.values()).map(
-          ([description]) => ({
-            description,
-          }),
-        ),
-        rationale: Array.from(choiceExplanations.values()),
+        options:
+          type.value !== "multiple-choice"
+            ? null
+            : Array.from(choiceDescriptions.values()).map(([description]) => ({
+                description,
+              })),
+        rationale:
+          type.value !== "multiple-choice"
+            ? null
+            : Array.from(choiceExplanations.values()),
         correctAnswer: getCorrectAnswer(),
         commentary: explanation.trim() || null,
         hint: hint.trim() || null,
@@ -886,15 +911,27 @@ const Footer = ({ user }: { user: UserState }) => {
         author: user.uid,
       };
 
-      if (user.role === "admin")
-        await addDoc(collection(db, "question"), quizData);
-      else await addDoc(collection(db, "requested"), quizData);
+      const targetCollection = user.role === "admin" ? "question" : "requested";
+
+      if (!quizId) {
+        await addDoc(collection(db, targetCollection), quizData);
+      } else {
+        await setDoc(doc(db, targetCollection, quizId), quizData, {
+          merge: true,
+        });
+
+        if (user.role !== "admin") {
+          await deleteDoc(doc(db, "rejected", quizId));
+        }
+      }
+
+      const message =
+        user.role === "admin"
+          ? "문제 등록이 완료되었습니다!"
+          : `문제 ${quizId ? "수정" : "등록"} 요청이 완료되었습니다!`;
 
       setInfoConfig({
-        content:
-          user.role === "admin"
-            ? "문제 등록이 완료되었습니다!"
-            : "문제 요청이 완료되었습니다!",
+        content: message,
         onClose: () => {
           router.push("/quiz");
           resetAll();
@@ -914,6 +951,32 @@ const Footer = ({ user }: { user: UserState }) => {
     }
   };
 
+  const create = async () => {
+    if (!isFilled()) return;
+
+    if (selectedView === "image" && preview) {
+      setInfoConfig({
+        content: "사진은 현재 지원되지 않습니다.",
+        onClose: () => {
+          setInfoConfig(null);
+        },
+      });
+      return;
+    }
+
+    setConfirmConfig({
+      content: `부적절한 문제 등록 시 제재를 가할 수 있습니다.
+계속하시겠습니까?`,
+      onCancel: () => {
+        setConfirmConfig(null);
+      },
+      onConfirm: () => {
+        setConfirmConfig(null);
+        createQuiz();
+      },
+    });
+  };
+
   const openPreview = () => {
     if (!isFilled()) return;
 
@@ -927,9 +990,9 @@ const Footer = ({ user }: { user: UserState }) => {
           className="flex-1 px-4 py-2 bg-transparent
       border border-[#727272] rounded-md mr-2
       text-[#727272]"
-          onClick={createQuiz}
+          onClick={create}
         >
-          {user.role === "admin" ? "문제 생성" : "생성 요청"}
+          {`${quizId ? "수정" : "생성"}${user.role === "admin" ? "" : " 요청"}`}
         </button>
         <button
           className="flex-1 px-4 py-2 bg-transparent

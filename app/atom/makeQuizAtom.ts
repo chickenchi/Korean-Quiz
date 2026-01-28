@@ -38,6 +38,8 @@ export const loadingAtom = atom<boolean>(false);
 
 export const showPreviewAtom = atom<boolean>(false);
 
+export const quizIdAtom = atom<string>("");
+
 export const resetAllWroteItemsAtom = atom(null, (get, set) => {
   set(questionTitleAtom, "");
   set(typeAtom, { id: 1, name: "다지선다", value: "multiple-choice" }); // 기본 타입값
@@ -52,5 +54,6 @@ export const resetAllWroteItemsAtom = atom(null, (get, set) => {
   set(articleAtom, "");
   set(explanationAtom, "");
   set(focusTargetAtom, null);
+  set(quizIdAtom, "");
   // 추가된 모든 아톰을 여기에 넣으세요!
 });

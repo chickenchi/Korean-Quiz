@@ -9,13 +9,34 @@ import {
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { db } from "../lib/client";
-import { infoConfigState, loginConfigState } from "../atom/modalAtom";
+import {
+  confirmConfigState,
+  infoConfigState,
+  loginConfigState,
+} from "../atom/modalAtom";
 import { Back } from "@/public/svgs/CategorySVG";
 import { ParsedText } from "../components/ParsedText";
 import { useRouter } from "next/navigation";
 import { RequestedPreview } from "./components/RequestedPreview";
 import { previewConfigAtom } from "../atom/reqAdminAtom";
 import { userAtom, UserState } from "../atom/userAtom";
+import {
+  articleAtom,
+  choiceDescriptionAtom,
+  choiceExplanationAtom,
+  correctAnswerAtom,
+  correctAnswerOXAtom,
+  explanationAtom,
+  focusTargetAtom,
+  guideAtom,
+  hintAtom,
+  previewAtom,
+  questionTitleAtom,
+  quizIdAtom,
+  selectedViewAtom,
+  typeAtom,
+  typeOptions,
+} from "../atom/makeQuizAtom";
 
 export interface questionData {
   id: string;
@@ -32,6 +53,7 @@ export interface questionData {
   article?: string;
   image?: any;
   author: string;
+  reason?: string;
 }
 
 const Header = () => {
@@ -58,9 +80,29 @@ const Section = ({ user }: { user: UserState }) => {
   const [rejectedQuizList, setRejectedQuizList] = useState<
     questionData[] | null
   >(null);
+
+  const [, setQuestionTitle] = useAtom(questionTitleAtom);
+  const [, setType] = useAtom(typeAtom);
+  const [, setChoiceDescriptions] = useAtom(choiceDescriptionAtom);
+  const [, setChoiceExplanations] = useAtom(choiceExplanationAtom);
+  const [, setCorrectAnswer] = useAtom(correctAnswerAtom);
+  const [, setCorrectAnswerOX] = useAtom(correctAnswerOXAtom);
+  const [, setSelectedView] = useAtom(selectedViewAtom);
+  const [, setArticle] = useAtom(articleAtom);
+  const [, setExplanation] = useAtom(explanationAtom);
+  const [, setPreview] = useAtom(previewAtom);
+  const [, setHint] = useAtom(hintAtom);
+  const [, setGuide] = useAtom(guideAtom);
+  const [, setFocusTarget] = useAtom(focusTargetAtom);
+
   const [, setPreviewConfig] = useAtom(previewConfigAtom);
 
   const [, setInfoConfig] = useAtom(infoConfigState);
+  const [, setConfirmConfig] = useAtom(confirmConfigState);
+
+  const [, setQuizId] = useAtom(quizIdAtom);
+
+  const router = useRouter();
 
   useEffect(() => {
     const reqCol = collection(db, "requested");
@@ -119,12 +161,110 @@ const Section = ({ user }: { user: UserState }) => {
     });
   };
 
+  const edit = (data: questionData) => {
+    const type = data.type;
+
+    const selectedType = typeOptions.find((option) => option.value === type);
+
+    setQuestionTitle(data.question);
+    if (selectedType) setType(selectedType);
+    if (data.options)
+      setChoiceDescriptions(
+        new Map(
+          type !== "multiple-choice"
+            ? [
+                [1, ["", false]],
+                [2, ["", false]],
+              ]
+            : data.options.map(({ description }, i) => {
+                const choiceNum = i + 1;
+                const isCorrect = choiceNum === Number(data.correctAnswer);
+                return [choiceNum, [description, isCorrect]];
+              }),
+        ),
+      );
+    if (data.rationale)
+      setChoiceExplanations(
+        new Map(
+          type !== "multiple-choice"
+            ? [
+                [1, ""],
+                [2, ""],
+              ]
+            : data.rationale.map((text, i) => [i + 1, text]),
+        ),
+      );
+    if (data.guide) setGuide(data.guide);
+    if (type === "text-input") setCorrectAnswer(String(data.correctAnswer));
+    if (
+      type === "ox" &&
+      (data.correctAnswer === "O" || data.correctAnswer === "X")
+    )
+      setCorrectAnswerOX(data.correctAnswer);
+    setSelectedView(data.article ? "article" : "none");
+    if (data.hint) setHint(data.hint);
+    setPreview(null);
+    if (data.article) setArticle(data.article);
+    if (data.commentary) setExplanation(data.commentary);
+    setFocusTarget(null);
+    setQuizId(data.id);
+
+    router.replace("/make_quiz");
+  };
+
+  const editQuiz = (data: questionData) => {
+    setConfirmConfig({
+      type: "danger",
+      content: `수정하시겠습니까?
+작성 중이던 문제가 있으면 내역이 날아갈 수 있습니다!`,
+      onCancel: () => {
+        setConfirmConfig(null);
+      },
+      onConfirm: () => {
+        setConfirmConfig(null);
+        edit(data);
+      },
+    });
+  };
+
+  const deleteQuizItem = async (
+    data: questionData,
+    type: "requested" | "question" | "rejected",
+  ) => {
+    await deleteDoc(doc(db, type, data.id));
+  };
+
+  const deleteQuiz = (
+    data: questionData,
+    type: "requested" | "question" | "rejected",
+  ) => {
+    setConfirmConfig({
+      type: "danger",
+      content: `삭제하시겠습니까?
+삭제된 문제는 복구가 불가능합니다!`,
+      onCancel: () => {
+        setConfirmConfig(null);
+      },
+      onConfirm: () => {
+        setInfoConfig({
+          content: "삭제가 완료되었습니다.",
+          onClose: () => {
+            setInfoConfig(null);
+          },
+        });
+
+        setConfirmConfig(null);
+        deleteQuizItem(data, type);
+      },
+    });
+  };
+
   const buttonStyle = `p-1 px-2
             text-[#727272]
             border border-[#727272] rounded`;
 
   const renderQuizItem = (
-    data: any,
+    data: questionData,
     type: "requested" | "question" | "rejected",
   ) => (
     <div
@@ -133,24 +273,44 @@ const Section = ({ user }: { user: UserState }) => {
       className="relative w-[90%] ml-4 mb-3 px-4 py-3 border border-[#727272] rounded"
       onClick={() => setPreviewConfig({ id: data.id, questionType: type })}
     >
-      <div className="w-[80%] overflow-hidden">
+      <div
+        className={`${type === "rejected" ? "w-[58%]" : "w-[70%]"} overflow-hidden`}
+      >
         <div className="truncate">
           <ParsedText text={data.question} />
         </div>
 
-        {type === "rejected" && (
-          <div className="absolute right-3 bottom-1/2 translate-y-1/2">
+        <div className="absolute right-3 bottom-1/2 translate-y-1/2">
+          {type === "rejected" && (
             <button
-              className={`${buttonStyle}`}
+              className={`${buttonStyle} mr-1`}
               onClick={(e) => {
                 e.stopPropagation();
-                readRejectedReason(data.reason);
+                if (data.reason) readRejectedReason(data.reason);
               }}
             >
               사유
             </button>
-          </div>
-        )}
+          )}
+          <button
+            className={`${buttonStyle} mr-1`}
+            onClick={(e) => {
+              e.stopPropagation();
+              editQuiz(data);
+            }}
+          >
+            수정
+          </button>
+          <button
+            className={`${buttonStyle}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              deleteQuiz(data, type);
+            }}
+          >
+            삭제
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import {
   deleteDoc,
   doc,
   onSnapshot,
+  setDoc,
 } from "firebase/firestore";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
@@ -144,7 +145,7 @@ const Section = () => {
       const targetQuiz = requestedQuizList?.find((quiz) => quiz.id === id);
       if (!targetQuiz) return;
 
-      await addDoc(collection(db, "rejected"), {
+      await setDoc(doc(db, "rejected", id), {
         ...targetQuiz,
         rejectedAt: Date.now(),
         reason: content,
