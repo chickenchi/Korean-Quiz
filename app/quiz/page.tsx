@@ -4,10 +4,10 @@ import Header from "./Header";
 import Section from "./Section";
 import Footer from "./Footer";
 import List from "./components/List";
-import ExplanationSheet from "../components/explanation_sheet/ExplanationSheet";
-import QuizView from "../components/View";
+import QuizView from "../components/common/view/View";
 import { answerState, questionState } from "../atom/quizAtom";
 import { useAtom } from "jotai";
+import ExplanationSheet from "@/app/components/common/explanation_sheet/ExplanationSheet";
 
 export default function Quiz() {
   const [question] = useAtom(questionState);

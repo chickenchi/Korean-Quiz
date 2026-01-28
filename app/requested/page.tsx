@@ -15,7 +15,7 @@ import {
   loginConfigState,
 } from "../atom/modalAtom";
 import { Back } from "@/public/svgs/CategorySVG";
-import { ParsedText } from "../components/ParsedText";
+import { ParsedText } from "../components/common/parsed_text/ParsedText";
 import { useRouter } from "next/navigation";
 import { RequestedPreview } from "@/app/components/requested/requested_preview/RequestedPreview";
 import { previewConfigAtom } from "../atom/reqAdminAtom";

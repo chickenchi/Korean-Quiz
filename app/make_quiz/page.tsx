@@ -41,7 +41,7 @@ import {
 } from "../atom/modalAtom";
 import { Back } from "@/public/svgs/CategorySVG";
 import { Preview } from "./components/Preview";
-import { ParsedText } from "../components/ParsedText";
+import { ParsedText } from "../components/common/parsed_text/ParsedText";
 import { useRouter } from "next/navigation";
 import { userAtom, UserState } from "../atom/userAtom";
 

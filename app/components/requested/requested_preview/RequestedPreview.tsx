@@ -2,8 +2,7 @@
 import { previewConfigAtom } from "@/app/atom/reqAdminAtom";
 import { openExplanationSheetState, openViewState } from "@/app/atom/quizAtom";
 import { infoConfigState } from "@/app/atom/modalAtom";
-import QuizView from "@/app/components/View";
-import ExplanationSheet from "@/app/components/explanation_sheet/ExplanationSheet";
+import QuizView from "@/app/components/common/view/View";
 import { getCircleNumber } from "@/app/tools/getCircleNumber";
 import { Bookmark, DisabledBookmark } from "@/public/svgs/ListSVG";
 import {
@@ -18,10 +17,11 @@ import {
 import { useAtom } from "jotai";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { ParsedText } from "@/app/components/ParsedText";
+import { ParsedText } from "@/app/components/common/parsed_text/ParsedText";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/app/lib/client";
 import { questionData } from "../../../requested/page";
+import ExplanationSheet from "@/app/components/common/explanation_sheet/ExplanationSheet";
 
 const Header = () => {
   return (

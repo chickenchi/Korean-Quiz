@@ -24,7 +24,7 @@ import {
 } from "../atom/quizAtom";
 import { useAtom } from "jotai";
 import { selectQuestion } from "./tools/select_question";
-import { ParsedText } from "../components/ParsedText";
+import { ParsedText } from "../components/common/parsed_text/ParsedText";
 
 // --- Sub Components (Tailwind 적용) ---
 

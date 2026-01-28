@@ -1,4 +1,4 @@
-import { parseTextStyle } from "../tools/parse_text_style";
+import { parseTextStyle } from "../../../tools/parse_text_style";
 
 interface ParsedTextProps {
   text: string;
