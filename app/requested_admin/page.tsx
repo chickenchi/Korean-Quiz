@@ -19,7 +19,7 @@ import {
 import { Back } from "@/public/svgs/CategorySVG";
 import { ParsedText } from "../components/ParsedText";
 import { useRouter } from "next/navigation";
-import { RequestedPreview } from "./components/RequestedPreview";
+import { RequestedPreview } from "@/app/components/requested/requested_preview/RequestedPreview";
 import { previewConfigAtom } from "../atom/reqAdminAtom";
 import { userAtom } from "../atom/userAtom";
 

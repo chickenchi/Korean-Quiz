@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import { ParsedText } from "@/app/components/ParsedText";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/app/lib/client";
-import { questionData } from "../page";
+import { questionData } from "../../../requested/page";
 
 const Header = () => {
   return (
